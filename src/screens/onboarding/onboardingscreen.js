@@ -15,23 +15,23 @@ export default function OnboardingScreen({ navigation }) {
     <View style={styles.background}>
       <View pointerEvents="none" style={styles.backgroundDecor}>
         <Image
-          source={require("../assets/images/splash/ellipse1.png")}
+          source={require("../../../assets/images/splash/ellipse1.png")}
           style={[styles.ellipseAsset, styles.ellipse1]}
         />
         <Image
-          source={require("../assets/images/splash/ellipse3.png")}
+          source={require("../../../assets/images/splash/ellipse3.png")}
           style={[styles.ellipseAsset, styles.ellipse3]}
         />
         <Image
-          source={require("../assets/images/splash/ellipse11.png")}
+          source={require("../../../assets/images/splash/ellipse11.png")}
           style={[styles.ellipseAsset, styles.ellipse11]}
         />
         <Image
-          source={require("../assets/images/splash/ellipse2.png")}
+          source={require("../../../assets/images/splash/ellipse2.png")}
           style={[styles.ellipseAsset, styles.ellipse2]}
         />
         <Image
-          source={require("../assets/images/splash/ellipse4.png")}
+          source={require("../../../assets/images/splash/ellipse4.png")}
           style={[styles.ellipseAsset, styles.ellipse4]}
         />
 
@@ -43,7 +43,7 @@ export default function OnboardingScreen({ navigation }) {
       <View style={styles.container}>
         <View pointerEvents="none" style={styles.heroWrap}>
           <Image
-            source={require("../assets/images/image.png")}
+            source={require("../../../assets/images/image.png")}
             style={styles.image}
           />
         </View>
