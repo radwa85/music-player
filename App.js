@@ -1,10 +1,11 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
-import OnboardingScreen from "./src/screens/onboarding/onboardingscreen";
-import { HomeScreen } from "./src/screens/HomeScreen/HomeScreen";
+import { StyleSheet } from "react-native";
 import { AudioProvider } from "./src/providers/AudioProvider";
+import { HomeScreen } from "./src/screens/HomeScreen/HomeScreen";
+import OnboardingScreen from "./src/screens/onboarding/onboardingscreen";
+import { SignUpScreen } from "./src/screens/SignUpScreen/SignUpScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -20,6 +21,11 @@ export default function App() {
           <Stack.Screen
             name="Onboarding"
             component={OnboardingScreen}
+            options={{ animationEnabled: false }}
+          />
+          <Stack.Screen
+            name="SignUp"
+            component={SignUpScreen}
             options={{ animationEnabled: false }}
           />
           <Stack.Screen name="Home" component={HomeScreen} />
