@@ -1,7 +1,6 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
 import OnboardingScreen from "./src/screens/onboarding/onboardingscreen";
 import { HomeScreen } from "./src/screens/HomeScreen/HomeScreen";
 import { SearchScreen } from "./src/screens/SearchScreen/SearchScreen";
