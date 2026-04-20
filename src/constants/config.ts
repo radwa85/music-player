@@ -1,2 +1,4 @@
-export const API_BASE_URL = 'https://musicapp-production-bcd8.up.railway.app/api';
-export const AUTH_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc1OTM1NzIwLCJpYXQiOjE3NzU5MzIxMjAsImp0aSI6IjE5Yzc2MzdjZDRhZTRjOGQ5MmFhMWI0ZDk3YmJlZDdmIiwidXNlcl9pZCI6IjMifQ.8sPus08flEpeuUBULSVtS3K4kLrMK6X8IrNQIPbp3hE';
+export const API_BASE_URL =
+  "https://musicapp-production-bcd8.up.railway.app/api";
+export const AUTH_TOKEN =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc2NjI5MjcyLCJpYXQiOjE3NzY2MjU2NzIsImp0aSI6Ijg1NjNiMjFlYWY2NDQzMTRhNTc1MGUwZTBlZDA4YTY1IiwidXNlcl9pZCI6IjMifQ.Do91G8sgMZuYG4iXI8u5U0PlRGIReQ_9nE74aZkkYk8";
