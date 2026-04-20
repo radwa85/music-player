@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Alert, Text, View } from "react-native";
 import styles from "./SignUpScreen.styles";
 
-import { AuthForm } from "../../components/Home/AuthForm";
+import { AuthForm } from "../../components/Auth/AuthForm";
 import { authApi } from "../../services/auth.api";
 
 export function SignUpScreen({ navigation }) {
