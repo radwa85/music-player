@@ -4,4 +4,7 @@ export const colors = {
   primary: '#091127',
   inactiveBar: '#CACACA',
   background: '#F7FAFF',
+  accent: '#C4401D',
+  inputBg: '#ECD2CF',
+  placeholder: '#A67B6B',
 };
