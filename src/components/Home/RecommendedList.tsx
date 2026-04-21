@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, FlatList, ActivityIndicator } from 'react-native';
 import { AppText } from '../Common/AppText';
-import { musicApi } from '../../services/api';
+import { homeService } from '../../services/homeService';
 import { Track } from '../../types/track';
 import { SongCard } from './SongCard';
 import { styles } from './RecommendedList.styles';
@@ -16,7 +16,7 @@ export const RecommendedList: React.FC = () => {
     const fetchTracks = async () => {
       try {
         setLoading(true);
-        const data = await musicApi.getRecommendations();
+        const data = await homeService.getRecommendations();
         setTracks(data);
         setError(null);
       } catch (err) {
@@ -33,7 +33,7 @@ export const RecommendedList: React.FC = () => {
   if (loading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="colors.primary" />
+        <ActivityIndicator size="large" color={colors.primaryOrange} />
       </View>
     );
   }
