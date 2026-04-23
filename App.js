@@ -4,6 +4,7 @@ import { StatusBar } from "expo-status-bar";
 import OnboardingScreen from "./src/screens/onboarding/onboardingscreen";
 import { HomeScreen } from "./src/screens/HomeScreen/HomeScreen";
 import { SearchScreen } from "./src/screens/SearchScreen/SearchScreen";
+import NowPlayingScreen from "./src/screens/NowPlaying/NowPlaying";
 import { AudioProvider } from "./src/providers/AudioProvider";
 import { Provider } from "react-redux";
 import { store } from "./src/store";
@@ -27,6 +28,11 @@ export default function App() {
           />
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="Search" component={SearchScreen} />
+          <Stack.Screen 
+            name="NowPlaying" 
+            component={NowPlayingScreen}
+            options={{ presentation: 'modal' }}
+          />
         </Stack.Navigator>
         <StatusBar style="auto" />
       </NavigationContainer>

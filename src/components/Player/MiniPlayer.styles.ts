@@ -41,6 +41,11 @@ export const styles = StyleSheet.create({
     width: 66,
     height: 66,
   },
+  infoContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   info: {
     flex: 1,
     marginLeft: 12,

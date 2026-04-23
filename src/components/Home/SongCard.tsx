@@ -8,16 +8,17 @@ import { PauseIcon } from '../Icons';
 
 interface SongCardProps {
   track: Track;
+  playlist?: Track[];
 }
 
-export const SongCard: React.FC<SongCardProps> = ({ track }) => {
+export const SongCard: React.FC<SongCardProps> = ({ track, playlist }) => {
   const { playTrack, currentTrack, isPlaying } = useAudio();
   const isActive = currentTrack?.id === track.id;
 
   return (
     <TouchableOpacity 
       style={styles.container} 
-      onPress={() => playTrack(track)}
+      onPress={() => playTrack(track, playlist)}
       activeOpacity={0.8}
     >
       <View style={styles.imageContainer}>
