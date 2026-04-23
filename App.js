@@ -10,6 +10,7 @@ import { HomeScreen } from './src/screens/HomeScreen/HomeScreen';
 import { AudioProvider } from './src/providers/AudioProvider';
 import { store } from './src/redux/store';
 
+
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -35,14 +36,18 @@ export default function App() {
     <Provider store={store}>
       <AudioProvider>
         <NavigationContainer>
+
           <Stack.Navigator screenOptions={{ headerShown: false }}>
             <Stack.Screen name="Onboarding" component={OnboardingScreen} />
             <Stack.Screen name="LoginScreen" component={LoginScreen} />
             <Stack.Screen name="HomeScreen" component={HomeScreen} />
           </Stack.Navigator>
+
           <StatusBar style="auto" />
         </NavigationContainer>
+
       </AudioProvider>
     </Provider>
   );
 }
+
