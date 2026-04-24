@@ -62,7 +62,7 @@ export const RecommendedList: React.FC = () => {
         keyExtractor={(item) => item.id.toString()}
         horizontal
         showsHorizontalScrollIndicator={false}
-        renderItem={({ item }) => <SongCard track={item} />}
+        renderItem={({ item }) => <SongCard track={item} playlist={tracks} />}
         contentContainerStyle={styles.listContent}
       />
     </View>

@@ -14,7 +14,7 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
     overflow: 'hidden',
     backgroundColor: colors.inactiveBar,
-  },
+  },    
   image: {
     width: '100%',
     height: '100%',

@@ -70,7 +70,7 @@ export const SearchScreen: React.FC = () => {
         columnWrapperStyle={{ gap: 16 }}
         renderItem={({ item }) => (
           <View style={{ flex: 1 }}>
-            <SearchSongCard track={item} />
+            <SearchSongCard track={item} playlist={results} />
           </View>
         )}
         contentContainerStyle={styles.listContent}
