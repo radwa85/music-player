@@ -2,12 +2,12 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import React, { useCallback, useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  FlatList,
-  Image,
-  Pressable,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    FlatList,
+    Image,
+    Pressable,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -185,10 +185,7 @@ export const LikedSongsScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView
-      style={styles.container}
-      edges={["top", "left", "right"]}
-    >
+    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       {/* ── Header ── */}
       <View style={styles.headerActionsRow}>
         <TouchableOpacity
@@ -229,7 +226,12 @@ export const LikedSongsScreen: React.FC = () => {
               Sort songs by
             </AppText>
             {renderSortOption("title", "A-Z", "Sort by song title", "text")}
-            {renderSortOption("artist", "Artist", "Group by artist name", "person")}
+            {renderSortOption(
+              "artist",
+              "Artist",
+              "Group by artist name",
+              "person",
+            )}
             {renderSortOption(
               "duration",
               "Duration",
