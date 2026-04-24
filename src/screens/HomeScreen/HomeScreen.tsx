@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, ScrollView} from 'react-native';
-import { LikedSongsScreen } from '../LikedSongs/LikedSongs';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
 import { RecommendedList } from '../../components/Home/RecommendedList';
@@ -11,6 +10,7 @@ import { colors } from '../../constants/colors';
 import { styles } from './HomeScreen.styles';
 
 export const HomeScreen: React.FC = () => {
+  const navigation = useNavigation<any>();
   const [fontsLoaded] = useFonts({
     'Gilroy-Regular': require('../../../assets/fonts/Gilroy-Regular.ttf'),
     'Gilroy-Medium': require('../../../assets/fonts/Gilroy-Medium.ttf'),
@@ -26,6 +26,7 @@ export const HomeScreen: React.FC = () => {
       <Header 
         leftIcon={<ListIcon color={colors.primary} width={25} height={14} />}
         rightIcon={<SearchIcon color={colors.primary} width={18} height={18} />}
+        onRightPress={() => navigation.navigate('Search')}
       />
 
       <ScrollView 
