@@ -13,7 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 import { AppText } from '../../components/Common/AppText';
 import { MiniPlayer } from '../../components/Player/MiniPlayer';
 import { useAudio } from '../../providers/AudioProvider';
-import { musicApi } from '../../services/api';
+import { likedApi } from '../../services/LikedApi';
 import { Track } from '../../types/track';
 import { colors } from '../../constants/colors';
 import { styles } from './LikedSongs.styles';
@@ -89,7 +89,7 @@ export const LikedSongsScreen: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const tracks = await (musicApi as any).getLikedSongs();
+      const tracks = await (likedApi as any).getLikedSongs();
       setLikedTracks(tracks);
     } catch {
       setError('Failed to load liked songs. Please try again.');
@@ -117,7 +117,7 @@ export const LikedSongsScreen: React.FC = () => {
               // Optimistic update
               setLikedTracks(prev => prev.filter(t => t.id !== track.id));
               try {
-                await (musicApi as any).toggleLike(track.id);
+                await (likedApi as any).toggleLike(track.id);
               } catch {
                 // Revert on failure
                 setLikedTracks(prev => [track, ...prev]);

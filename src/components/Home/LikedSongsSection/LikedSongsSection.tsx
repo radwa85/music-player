@@ -11,7 +11,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { AppText } from '../../Common/AppText';
 import { useAudio } from '../../../providers/AudioProvider';
-import { musicApi } from '../../../services/api';
+import { likedApi } from '../../../services/LikedApi';
 import { Track } from '../../../types/track';
 import { colors } from '../../../constants/colors';
 import { styles, CARD_SIZE } from './LikedSongsSection.styles';
@@ -24,7 +24,7 @@ export const LikedSongsSection: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    musicApi.getLikedSongs()
+    likedApi.getLikedSongs()
       .then(setLikedTracks)
       .catch(() => {})
       .finally(() => setLoading(false));
