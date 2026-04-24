@@ -2,44 +2,104 @@ import { StyleSheet, Dimensions } from 'react-native';
 import { colors } from '../../constants/colors';
 
 const { width } = Dimensions.get('window');
-const CARD_SIZE = (width - 48) / 2;
+const CARD_SIZE = (width - 58) / 2;
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
   },
-  header: {
+  headerActionsRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingHorizontal: 14,
+    paddingTop: 8,
+    paddingBottom: 4,
+  },
+  headerTitleRow: {
     paddingHorizontal: 20,
-    paddingTop: 56,
-    paddingBottom: 16,
+    paddingTop: 8,
+    paddingBottom: 12,
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 18,
     color: colors.primaryText,
   },
   backButton: {
-    padding: 4,
+    padding: 6,
   },
   filterButton: {
-    padding: 4,
+    padding: 6,
+    zIndex: 30,
+  },
+  sortBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 20,
+  },
+  sortMenu: {
+    position: 'absolute',
+    top: 58,
+    right: 14,
+    zIndex: 25,
+    width: 220,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.1,
+    shadowRadius: 16,
+    elevation: 6,
+  },
+  sortTitle: {
+    fontSize: 13,
+    color: colors.primaryText,
+    marginBottom: 8,
+    paddingHorizontal: 4,
+  },
+  sortOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 8,
+    marginBottom: 4,
+  },
+  sortOptionSelected: {
+    backgroundColor: '#F5F7FB',
+  },
+  sortIconWrap: {
+    width: 28,
+    height: 28,
+    borderRadius: 8,
+    backgroundColor: '#EEF2F8',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
+  },
+  sortTextWrap: {
+    flex: 1,
+  },
+  sortOptionTitle: {
+    fontSize: 13,
+    color: colors.primaryText,
+  },
+  sortOptionDetail: {
+    fontSize: 11,
+    color: colors.secondaryText,
   },
   listContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 100,
+    paddingHorizontal: 20,
+    paddingBottom: 116,
   },
   row: {
     justifyContent: 'space-between',
-    marginBottom: 16,
+    marginBottom: 14,
   },
   card: {
     width: CARD_SIZE,
     borderRadius: 12,
-    overflow: 'hidden',
-    backgroundColor: '#fff',
   },
   cardImageWrapper: {
     width: CARD_SIZE,
@@ -67,20 +127,20 @@ export const styles = StyleSheet.create({
     padding: 5,
   },
   cardInfo: {
-    paddingTop: 8,
-    paddingBottom: 4,
-    paddingHorizontal: 2,
+    paddingTop: 7,
+    paddingBottom: 2,
+    paddingHorizontal: 1,
   },
   cardTitle: {
-    fontSize: 13,
+    fontSize: 12,
     color: colors.primaryText,
     marginBottom: 2,
   },
   cardArtist: {
-    fontSize: 11,
+    fontSize: 10,
     color: colors.secondaryText,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    textTransform: 'capitalize',
+    letterSpacing: 0.2,
   },
 
   // Empty state
