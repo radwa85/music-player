@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, ScrollView} from 'react-native';
+import { LikedSongsScreen } from '../LikedSongs/LikedSongs';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
 import { RecommendedList } from '../../components/Home/RecommendedList';
@@ -33,6 +34,7 @@ export const HomeScreen: React.FC = () => {
       >
         <View style={styles.heroSection}>
           <RecommendedList />
+          <LikedSongsScreen />
         </View>
 
         <View style={{ height: 120 }} />
