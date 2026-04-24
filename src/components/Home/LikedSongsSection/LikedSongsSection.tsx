@@ -1,20 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import React, { useEffect, useState } from "react";
 import {
-  View,
+  ActivityIndicator,
   FlatList,
   Image,
   TouchableOpacity,
-  ActivityIndicator,
-} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
+  View,
+} from "react-native";
 
-import { AppText } from '../../Common/AppText';
-import { useAudio } from '../../../providers/AudioProvider';
-import { likedApi } from '../../../services/LikedApi';
-import { Track } from '../../../types/track';
-import { colors } from '../../../constants/colors';
-import { styles, CARD_SIZE } from './LikedSongsSection.styles';
+import { colors } from "../../../constants/colors";
+import { useAudio } from "../../../providers/AudioProvider";
+import { likedApi } from "../../../services/LikedService";
+import { Track } from "../../../types/track";
+import { AppText } from "../../Common/AppText";
+import { styles } from "./LikedSongsSection.styles";
 
 export const LikedSongsSection: React.FC = () => {
   const navigation = useNavigation();
@@ -24,7 +24,8 @@ export const LikedSongsSection: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    likedApi.getLikedSongs()
+    likedApi
+      .getLikedSongs()
       .then(setLikedTracks)
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -46,7 +47,7 @@ export const LikedSongsSection: React.FC = () => {
           Liked Songs
         </AppText>
         <TouchableOpacity
-          onPress={() => navigation.navigate('LikedSongs' as never)}
+          onPress={() => navigation.navigate("LikedSongs" as never)}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
           <AppText style={styles.seeAll}>See all</AppText>
@@ -56,14 +57,17 @@ export const LikedSongsSection: React.FC = () => {
       {likedTracks.length === 0 ? (
         <TouchableOpacity
           style={styles.emptyCard}
-          onPress={() => navigation.navigate('LikedSongs' as never)}
+          onPress={() => navigation.navigate("LikedSongs" as never)}
           activeOpacity={0.7}
         >
-          <Ionicons name="heart-outline" size={28} color={colors.secondaryText} />
+          <Ionicons
+            name="heart-outline"
+            size={28}
+            color={colors.secondaryText}
+          />
           <AppText style={styles.emptyText}>No liked songs yet</AppText>
         </TouchableOpacity>
       ) : (
-
         <FlatList
           data={likedTracks}
           keyExtractor={(item) => String(item.id)}
@@ -79,18 +83,25 @@ export const LikedSongsSection: React.FC = () => {
                 activeOpacity={0.85}
               >
                 <View style={styles.imageWrapper}>
-                  <Image source={{ uri: item.cover_url }} style={styles.image} />
+                  <Image
+                    source={{ uri: item.cover_url }}
+                    style={styles.image}
+                  />
                   {isActive && (
                     <View style={styles.overlay}>
                       <Ionicons
-                        name={isPlaying ? 'pause-circle' : 'play-circle'}
+                        name={isPlaying ? "pause-circle" : "play-circle"}
                         size={32}
                         color="#fff"
                       />
                     </View>
                   )}
                 </View>
-                <AppText fontWeight="bold" style={styles.cardTitle} numberOfLines={1}>
+                <AppText
+                  fontWeight="bold"
+                  style={styles.cardTitle}
+                  numberOfLines={1}
+                >
                   {item.title}
                 </AppText>
                 <AppText style={styles.cardArtist} numberOfLines={1}>

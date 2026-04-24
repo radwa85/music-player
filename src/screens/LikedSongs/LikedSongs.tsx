@@ -1,22 +1,22 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import React, { useCallback, useEffect, useState } from "react";
 import {
-  View,
+  ActivityIndicator,
+  Alert,
   FlatList,
   Image,
   TouchableOpacity,
-  ActivityIndicator,
-  Alert,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+  View,
+} from "react-native";
 
-import { AppText } from '../../components/Common/AppText';
-import { MiniPlayer } from '../../components/Player/MiniPlayer';
-import { useAudio } from '../../providers/AudioProvider';
-import { likedApi } from '../../services/LikedApi';
-import { Track } from '../../types/track';
-import { colors } from '../../constants/colors';
-import { styles } from './LikedSongs.styles';
+import { AppText } from "../../components/Common/AppText";
+import { MiniPlayer } from "../../components/Player/MiniPlayer";
+import { colors } from "../../constants/colors";
+import { useAudio } from "../../providers/AudioProvider";
+import { likedApi } from "../../services/LikedService";
+import { Track } from "../../types/track";
+import { styles } from "./LikedSongs.styles";
 
 // ─── Song Card ────────────────────────────────────────────────────────────────
 
@@ -36,7 +36,11 @@ const SongCard: React.FC<SongCardProps> = ({
   onUnlike,
 }) => {
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.85}>
+    <TouchableOpacity
+      style={styles.card}
+      onPress={onPress}
+      activeOpacity={0.85}
+    >
       <View style={styles.cardImageWrapper}>
         <Image source={{ uri: track.cover_url }} style={styles.cardImage} />
 
@@ -92,7 +96,7 @@ export const LikedSongsScreen: React.FC = () => {
       const tracks = await (likedApi as any).getLikedSongs();
       setLikedTracks(tracks);
     } catch {
-      setError('Failed to load liked songs. Please try again.');
+      setError("Failed to load liked songs. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -103,33 +107,30 @@ export const LikedSongsScreen: React.FC = () => {
   }, [fetchLikedSongs]);
 
   // ── Unlike handler ─────────────────────────────────────────────────────────
-  const handleUnlike = useCallback(
-    (track: Track) => {
-      Alert.alert(
-        'Remove from Liked Songs',
-        `Remove "${track.title}" from your liked songs?`,
-        [
-          { text: 'Cancel', style: 'cancel' },
-          {
-            text: 'Remove',
-            style: 'destructive',
-            onPress: async () => {
-              // Optimistic update
-              setLikedTracks(prev => prev.filter(t => t.id !== track.id));
-              try {
-                await (likedApi as any).toggleLike(track.id);
-              } catch {
-                // Revert on failure
-                setLikedTracks(prev => [track, ...prev]);
-                Alert.alert('Error', 'Could not remove song. Please try again.');
-              }
-            },
+  const handleUnlike = useCallback((track: Track) => {
+    Alert.alert(
+      "Remove from Liked Songs",
+      `Remove "${track.title}" from your liked songs?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Remove",
+          style: "destructive",
+          onPress: async () => {
+            // Optimistic update
+            setLikedTracks((prev) => prev.filter((t) => t.id !== track.id));
+            try {
+              await (likedApi as any).toggleLike(track.id);
+            } catch {
+              // Revert on failure
+              setLikedTracks((prev) => [track, ...prev]);
+              Alert.alert("Error", "Could not remove song. Please try again.");
+            }
           },
-        ],
-      );
-    },
-    [],
-  );
+        },
+      ],
+    );
+  }, []);
 
   // ── Render ─────────────────────────────────────────────────────────────────
   const renderItem = useCallback(
@@ -183,7 +184,11 @@ export const LikedSongsScreen: React.FC = () => {
 
         {/* Filter / sort placeholder — wire up as needed */}
         <TouchableOpacity style={styles.filterButton}>
-          <Ionicons name="options-outline" size={24} color={colors.primaryText} />
+          <Ionicons
+            name="options-outline"
+            size={24}
+            color={colors.primaryText}
+          />
         </TouchableOpacity>
       </View>
 
@@ -195,14 +200,17 @@ export const LikedSongsScreen: React.FC = () => {
       ) : error ? (
         <View style={styles.errorContainer}>
           <AppText style={styles.errorText}>{error}</AppText>
-          <TouchableOpacity style={styles.retryButton} onPress={fetchLikedSongs}>
+          <TouchableOpacity
+            style={styles.retryButton}
+            onPress={fetchLikedSongs}
+          >
             <AppText style={styles.retryText}>Try Again</AppText>
           </TouchableOpacity>
         </View>
       ) : (
         <FlatList
           data={likedTracks}
-          keyExtractor={item => String(item.id)}
+          keyExtractor={(item) => String(item.id)}
           renderItem={renderItem}
           numColumns={2}
           columnWrapperStyle={styles.row}
