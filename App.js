@@ -9,6 +9,7 @@ import { AudioProvider } from "./src/providers/AudioProvider";
 import { Provider } from "react-redux";
 import { store } from "./src/store";
 
+
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -36,6 +37,7 @@ export default function App() {
         </Stack.Navigator>
         <StatusBar style="auto" />
       </NavigationContainer>
+
       </AudioProvider>
     </Provider>
   );

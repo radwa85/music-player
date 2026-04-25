@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
-import { View, TextInput, FlatList, ActivityIndicator } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { View, TextInput, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
+import { Ionicons } from '@expo/vector-icons';
 import { setQuery, clearSearch, fetchSearchResults } from '../../store/slices/searchSlice';
 import { RootState, AppDispatch } from '../../store';
 import { SearchIcon, MusicSearchIcon } from '../../components/Icons';
@@ -9,11 +10,14 @@ import { SearchSongCard } from '../../components/Search/SearchSongCard';
 import { MiniPlayer } from '../../components/Player/MiniPlayer';
 import { AppText } from '../../components/Common/AppText';
 import { colors } from '../../constants/colors';
+import { FilterModal, GenreOption } from '../../components/filter/FilterModal';
 import { styles } from './SearchScreen.styles';
 
 export const SearchScreen: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { query, results, loading, error } = useSelector((state: RootState) => state.search);
+  const [filterModalVisible, setFilterModalVisible] = useState(false);
+  const [selectedGenre, setSelectedGenre] = useState<GenreOption>('all');
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -23,9 +27,21 @@ export const SearchScreen: React.FC = () => {
         dispatch(clearSearch());
       }
     }, 500);
-
     return () => clearTimeout(delayDebounceFn);
   }, [query, dispatch]);
+
+  const filteredResults = useMemo(() => {
+    if (!results.length) return [];
+    if (selectedGenre === 'all') return results;
+
+    const filtered = results.filter(track => {
+      const trackGenre = track.genre?.toLowerCase();
+      return trackGenre === selectedGenre;
+    });
+
+    console.log(`Filter: selected=${selectedGenre}, total=${results.length}, filtered=${filtered.length}`);
+    return filtered;
+  }, [results, selectedGenre]);
 
   const renderContent = () => {
     if (loading) {
@@ -35,7 +51,6 @@ export const SearchScreen: React.FC = () => {
         </View>
       );
     }
-
     if (error) {
       return (
         <View style={styles.errorContainer}>
@@ -43,7 +58,6 @@ export const SearchScreen: React.FC = () => {
         </View>
       );
     }
-
     if (query.trim().length === 0) {
       return (
         <View style={styles.exploreContainer}>
@@ -53,18 +67,17 @@ export const SearchScreen: React.FC = () => {
         </View>
       );
     }
-
-    if (results.length === 0) {
+    if (filteredResults.length === 0) {
+      const emptyMessage = `No results found for "${query}"${selectedGenre !== 'all' ? ` in genre "${selectedGenre}"` : ''}`;
       return (
         <View style={styles.emptyContainer}>
-          <AppText style={styles.emptyText}>No results found for "{query}"</AppText>
+          <AppText style={styles.emptyText}>{emptyMessage}</AppText>
         </View>
       );
     }
-
     return (
       <FlatList
-        data={results}
+        data={filteredResults}
         keyExtractor={(item) => item.id.toString()}
         numColumns={2}
         columnWrapperStyle={{ gap: 16 }}
@@ -92,12 +105,22 @@ export const SearchScreen: React.FC = () => {
             onChangeText={(text) => dispatch(setQuery(text))}
             autoFocus
           />
+          <TouchableOpacity onPress={() => setFilterModalVisible(true)} style={styles.filterIconButton}>
+            <Ionicons name="options-outline" size={24} color={colors.unactiveTextIcon} />
+          </TouchableOpacity>
         </View>
       </View>
       <View style={styles.contentContainer}>
         {renderContent()}
       </View>
       <MiniPlayer />
+
+      <FilterModal
+        visible={filterModalVisible}
+        onClose={() => setFilterModalVisible(false)}
+        selectedGenre={selectedGenre}
+        onSelectGenre={setSelectedGenre}
+      />
     </SafeAreaView>
   );
 };
