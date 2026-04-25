@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -10,35 +10,33 @@ import {
   ScrollView,
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { router, useLocalSearchParams } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
 import { useAudio } from '../../providers/AudioProvider';
 import { Track } from '../../types/track';
 import { colors } from '../../constants/colors';
-import { styles, ALBUM_ART_SIZE } from './NowPlaying.styles';
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-type RepeatMode = 'none' | 'all' | 'one';
+import { styles } from './NowPlaying.styles';
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function NowPlayingScreen() {
-  const params = useLocalSearchParams<{
-    playlist?: string;
-    currentIndex?: string;
-  }>();
-
-  const playlist: Track[] = params.playlist ? JSON.parse(params.playlist) : [];
-  const [currentIndex, setCurrentIndex] = useState<number>(
-    params.currentIndex ? Number(params.currentIndex) : 0,
-  );
+  const navigation = useNavigation();
 
   // ─── Audio context ──────────────────────────────────────────────────────
-  const { currentTrack, isPlaying, status, playTrack, togglePlayback } = useAudio();
+  const { 
+    currentTrack, 
+    isPlaying, 
+    status, 
+    togglePlayback, 
+    skipForward, 
+    skipBackward,
+    isShuffle,
+    repeatMode,
+    toggleShuffle,
+    toggleRepeat,
+    playlist 
+  } = useAudio();
 
   // ─── Local state ────────────────────────────────────────────────────────
-  const [isShuffle, setIsShuffle] = useState<boolean>(false);
-  const [repeatMode, setRepeatMode] = useState<RepeatMode>('none');
   const [liked, setLiked] = useState<boolean>(false);
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [dragPosition, setDragPosition] = useState<number>(0);
@@ -63,37 +61,6 @@ export default function NowPlayingScreen() {
       useNativeDriver: true,
     }).start();
   }, [isPlaying]);
-
-  // ─── Keep index in sync when track changes from MiniPlayer etc ──────────
-  useEffect(() => {
-    if (!currentTrack || !playlist.length) return;
-    const idx = playlist.findIndex(t => t.id === currentTrack.id);
-    if (idx !== -1) setCurrentIndex(idx);
-  }, [currentTrack]);
-
-  // ─── Handlers ───────────────────────────────────────────────────────────
-  const handleSkipNext = async (): Promise<void> => {
-    if (!playlist.length) return;
-    const nextIndex = isShuffle
-      ? Math.floor(Math.random() * playlist.length)
-      : (currentIndex + 1) % playlist.length;
-    setCurrentIndex(nextIndex);
-    await playTrack(playlist[nextIndex]);
-  };
-
-  const handleSkipPrev = async (): Promise<void> => {
-    if (!playlist.length) return;
-    if (positionMs > 3000) return;
-    const prevIndex = (currentIndex - 1 + playlist.length) % playlist.length;
-    setCurrentIndex(prevIndex);
-    await playTrack(playlist[prevIndex]);
-  };
-
-  const handleRepeatToggle = (): void => {
-    setRepeatMode(prev =>
-      prev === 'none' ? 'all' : prev === 'all' ? 'one' : 'none',
-    );
-  };
 
   // ─── Progress bar drag ──────────────────────────────────────────────────
   const panResponder = useRef(
@@ -125,11 +92,10 @@ export default function NowPlayingScreen() {
     return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   };
 
-  const repeatIcon: string = repeatMode === 'one' ? 'repeat-once' : 'repeat';
+  const repeatIcon: string = 'repeat';
   const repeatColor: string = repeatMode === 'none' ? colors.inactiveBar : '#FF2D78';
 
-  const displayTrack: Track | null =
-    currentTrack ?? (playlist.length ? playlist[currentIndex] : null);
+  const currentIndex = playlist.findIndex(t => t.id === currentTrack?.id);
   const prevTrack: Track | null =
     currentIndex > 0 ? playlist[currentIndex - 1] : null;
   const nextTrack: Track | null =
@@ -146,7 +112,7 @@ export default function NowPlayingScreen() {
         {/* ── Header ── */}
         <View style={styles.header}>
           <TouchableOpacity
-            onPress={() => router.back()}
+            onPress={() => navigation.goBack()}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
             <Ionicons name="chevron-back" size={26} color={colors.primaryText} />
           </TouchableOpacity>
@@ -166,9 +132,9 @@ export default function NowPlayingScreen() {
 
           <Animated.View
             style={[styles.artContainer, { transform: [{ scale: albumScale }] }]}>
-            {displayTrack?.cover_url ? (
+            {currentTrack?.cover_url ? (
               <Image
-                source={{ uri: displayTrack.cover_url }}
+                source={{ uri: currentTrack.cover_url }}
                 style={styles.albumArt}
                 resizeMode="cover"
               />
@@ -192,10 +158,10 @@ export default function NowPlayingScreen() {
         <View style={styles.infoRow}>
           <View style={styles.infoText}>
             <Text style={styles.songTitle} numberOfLines={1}>
-              {displayTrack?.title ?? 'Unknown Title'}
+              {currentTrack?.title ?? 'Unknown Title'}
             </Text>
             <Text style={styles.artistName} numberOfLines={1}>
-              {displayTrack?.artist ?? 'Unknown Artist'}
+              {currentTrack?.artist ?? 'Unknown Artist'}
             </Text>
           </View>
           <TouchableOpacity
@@ -215,12 +181,12 @@ export default function NowPlayingScreen() {
             <Ionicons name="volume-low-outline" size={22} color={colors.inactiveBar} />
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={handleRepeatToggle}
+            onPress={toggleRepeat}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
             <MaterialCommunityIcons name={repeatIcon as any} size={22} color={repeatColor} />
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => setIsShuffle(p => !p)}
+            onPress={toggleShuffle}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
             <Ionicons
               name="shuffle"
@@ -252,7 +218,7 @@ export default function NowPlayingScreen() {
         {/* ── Playback Controls ── */}
         <View style={styles.controls}>
           <TouchableOpacity
-            onPress={handleSkipPrev}
+            onPress={skipBackward}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
             <Ionicons name="play-skip-back" size={32} color={colors.primaryText} />
           </TouchableOpacity>
@@ -270,7 +236,7 @@ export default function NowPlayingScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={handleSkipNext}
+            onPress={skipForward}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
             <Ionicons name="play-skip-forward" size={32} color={colors.primaryText} />
           </TouchableOpacity>

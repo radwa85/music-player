@@ -3,21 +3,33 @@ import { useAudioPlayer, useAudioPlayerStatus, setAudioModeAsync, setIsAudioActi
 import { Track } from '../types/track';
 import { playbackService } from '../services/playbackService';
 
+type RepeatMode = 'none' | 'all' | 'one';
+
 interface AudioContextType {
   currentTrack: Track | null;
   isPlaying: boolean;
   status: any;
-  playTrack: (track: Track) => Promise<void>;
+  playlist: Track[];
+  isShuffle: boolean;
+  repeatMode: RepeatMode;
+  playTrack: (track: Track, playlist?: Track[]) => Promise<void>;
   togglePlayback: () => void;
   skipForward: () => void;
   skipBackward: () => void;
+  toggleShuffle: () => void;
+  toggleRepeat: () => void;
 }
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
 
 export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
+  const [playlist, setPlaylist] = useState<Track[]>([]);
+  const [currentIndex, setCurrentIndex] = useState<number>(-1);
+  const [isShuffle, setIsShuffle] = useState(false);
+  const [repeatMode, setRepeatMode] = useState<RepeatMode>('none');
   const [shouldAutoPlay, setShouldAutoPlay] = useState(false);
+  const lastDidJustFinish = React.useRef(false);
   
   const audioSource = useMemo(() => {
     if (!currentTrack) return null;
@@ -29,6 +41,97 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   });
   
   const status = useAudioPlayerStatus(player);
+
+  const playTrack = useCallback(async (track: Track, newPlaylist?: Track[]) => {
+    try {
+      if (newPlaylist) {
+        setPlaylist(newPlaylist);
+        const index = newPlaylist.findIndex(t => t.id === track.id);
+        setCurrentIndex(index);
+      } else if (playlist.length > 0) {
+        const index = playlist.findIndex(t => t.id === track.id);
+        setCurrentIndex(index);
+      }
+
+      if (currentTrack?.id === track.id) {
+        if (player.playing) {
+          player.pause();
+        } else {
+          player.play();
+        }
+        return;
+      }
+      
+      setCurrentTrack(track);
+      setShouldAutoPlay(true);
+      await setIsAudioActiveAsync(true);
+      
+    } catch (error) {
+      console.error('Error playing track', error);
+    }
+  }, [currentTrack, player, playlist]);
+
+  const skipForward = useCallback(() => {
+    if (playlist.length === 0) return;
+
+    let nextIndex = currentIndex + 1;
+    if (nextIndex >= playlist.length) {
+      if (repeatMode === 'all') {
+        nextIndex = 0;
+      } else {
+        return;
+      }
+    }
+    
+    playTrack(playlist[nextIndex]);
+  }, [playlist, currentIndex, repeatMode, playTrack]);
+
+  const skipBackward = useCallback(() => {
+    if (playlist.length === 0) return;
+
+    if (status.currentTime > 3) {
+      player.seekTo(0);
+      return;
+    }
+
+    let prevIndex = currentIndex - 1;
+    if (prevIndex < 0) {
+      if (repeatMode === 'all') {
+        prevIndex = playlist.length - 1;
+      } else {
+        return;
+      }
+    }
+    playTrack(playlist[prevIndex]);
+  }, [playlist, currentIndex, status.currentTime, playTrack, player, repeatMode]);
+
+  const toggleShuffle = useCallback(() => {
+    setIsShuffle(prev => !prev);
+  }, []);
+
+  const toggleRepeat = useCallback(() => {
+    setRepeatMode(prev => {
+      if (prev === 'none') return 'one';
+      if (prev === 'one') return 'all';
+      return 'none';
+    });
+  }, []);
+
+  // Handle track ending
+  useEffect(() => {
+    if (status.didJustFinish && !lastDidJustFinish.current) {
+      if (repeatMode === 'one') {
+        player.seekTo(0);
+        player.play();
+      } else if (isShuffle) {
+        const nextIndex = Math.floor(Math.random() * playlist.length);
+        playTrack(playlist[nextIndex]);
+      } else if (repeatMode === 'all' || currentIndex < playlist.length - 1) {
+        skipForward();
+      }
+    }
+    lastDidJustFinish.current = status.didJustFinish;
+  }, [status.didJustFinish, repeatMode, currentIndex, playlist.length, isShuffle, skipForward, player, playTrack]);
 
   useEffect(() => {
     if (status.isLoaded && shouldAutoPlay) {
@@ -53,29 +156,9 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setupAudio();
   }, []);
 
-  const playTrack = useCallback(async (track: Track) => {
-    try {
-      if (currentTrack?.id === track.id) {
-        if (status.playing) {
-          player.pause();
-        } else {
-          player.play();
-        }
-        return;
-      }
-      
-      setCurrentTrack(track);
-      setShouldAutoPlay(true);
-      await setIsAudioActiveAsync(true);
-      
-    } catch (error) {
-      console.error('Error playing track', error);
-    }
-  }, [currentTrack, player, status.playing]);
-
   const togglePlayback = useCallback(() => {
     try {
-      if (status.playing) {
+      if (player.playing) {
         player.pause();
       } else {
         player.play();
@@ -83,20 +166,23 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } catch (e) {
       console.error('Error toggling playback', e);
     }
-  }, [player, status.playing]);
+  }, [player]);
 
-  const skipForward = useCallback(() => {}, []);
-  const skipBackward = useCallback(() => {}, []);
   return (
     <AudioContext.Provider
       value={{
         currentTrack,
         isPlaying: status.playing,
         status,
+        playlist,
+        isShuffle,
+        repeatMode,
         playTrack,
         togglePlayback,
         skipForward,
         skipBackward,
+        toggleShuffle,
+        toggleRepeat,
       }}
     >
       {children}

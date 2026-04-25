@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { View, ScrollView} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import { LikedSongsSection } from '../../components/Home/LikedSongsSection/LikedSongsSection';
 import { useFonts } from 'expo-font';
 import { RecommendedList } from '../../components/Home/RecommendedList';
 import { MiniPlayer } from '../../components/Player/MiniPlayer';
@@ -36,6 +37,7 @@ export const HomeScreen: React.FC = () => {
       >
         <View style={styles.heroSection}>
           <RecommendedList />
+          <LikedSongsSection />
         </View>
 
         <View style={{ height: 120 }} />
