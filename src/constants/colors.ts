@@ -7,4 +7,7 @@ export const colors = {
   unactiveTextIcon :'#000040',
   inactiveBar: '#CACACA',
   background: '#F7FAFF',
+  accent: '#C4401D',
+  inputBg: '#ECD2CF',
+  placeholder: '#A67B6B',
 };
