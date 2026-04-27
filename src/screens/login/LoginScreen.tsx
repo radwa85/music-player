@@ -1,53 +1,63 @@
-import React, { useState } from 'react';
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import React, { useState } from "react";
 import {
-  View,
-  Text,
-  TextInput,
+  Alert,
   KeyboardAvoidingView,
   Platform,
-  Alert,
-} from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import { loginUser } from '../../redux/authSlice';
-import { AppDispatch, RootState } from '../../redux/store';
-import { router } from 'expo-router';
-import CustomButton from '../login/custombutton';
-import { Ionicons } from '@expo/vector-icons';
-import { loginStyles as styles } from './loginstyle';
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser } from "../../redux/authSlice";
+import { AppDispatch, RootState } from "../../redux/store";
+import CustomButton from "../login/custombutton";
+import { loginStyles as styles } from "./loginstyle";
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const dispatch = useDispatch<AppDispatch>();
   const { isLoading, error } = useSelector((state: RootState) => state.auth);
+  type RootStackParamList = {
+    Login: undefined;
+    HomeScreen: undefined;
+  };
 
+  type Nav = NativeStackNavigationProp<RootStackParamList>;
+
+  const navigation = useNavigation<Nav>();
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
-      Alert.alert('Attention', 'Please enter both email and password');
+      Alert.alert("Attention", "Please enter both email and password");
       return;
     }
 
     const result = await dispatch(loginUser({ email, password }));
 
     if (loginUser.fulfilled.match(result)) {
-      router.replace('/(tabs)');
+      navigation.replace("HomeScreen");
     } else {
-      let errorMsg = error || 'Login failed';
-      if (error?.includes('405')) {
-        errorMsg = 'Error 405: Request method not supported. Check server URL.';
+      let errorMsg = error || "Login failed";
+      if (error?.includes("405")) {
+        errorMsg = "Error 405: Request method not supported. Check server URL.";
       }
-      Alert.alert('Error', errorMsg);
+      Alert.alert("Error", errorMsg);
     }
   };
 
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <View style={styles.content}>
-        <Text style={[styles.welcome, { textAlign: 'center' }]}>Welcome Back</Text>
-        <Text style={[styles.subtitle, { textAlign: 'center' }]}>
+        <Text style={[styles.welcome, { textAlign: "center" }]}>
+          Welcome Back
+        </Text>
+        <Text style={[styles.subtitle, { textAlign: "center" }]}>
           Where Sound Comes Alive
         </Text>
 
@@ -68,7 +78,12 @@ export default function LoginScreen() {
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Email</Text>
           <View style={styles.inputWrapper}>
-            <Ionicons name="mail-outline" size={20} color="#666" style={styles.inputIcon} />
+            <Ionicons
+              name="mail-outline"
+              size={20}
+              color="#666"
+              style={styles.inputIcon}
+            />
             <TextInput
               style={styles.inputEmail}
               placeholder="Email Address"
@@ -84,7 +99,12 @@ export default function LoginScreen() {
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Password</Text>
           <View style={styles.inputWrapperPassword}>
-            <Ionicons name="lock-closed-outline" size={20} color="#666" style={styles.inputIcon} />
+            <Ionicons
+              name="lock-closed-outline"
+              size={20}
+              color="#666"
+              style={styles.inputIcon}
+            />
             <TextInput
               style={styles.inputPassword}
               placeholder="Password"
