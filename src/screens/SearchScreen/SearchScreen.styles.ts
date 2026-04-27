@@ -14,10 +14,10 @@ export const styles = StyleSheet.create({
   searchInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.textInputBackground, 
-    borderRadius: 8, 
+    backgroundColor: colors.textInputBackground,
+    borderRadius: 8,
     borderWidth: 2,
-    borderColor: colors.primaryOrange, 
+    borderColor: colors.primaryOrange,
     paddingHorizontal: 12,
     paddingVertical: 4,
     marginTop: 10,
@@ -26,8 +26,12 @@ export const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 10,
     fontSize: 16,
-    color: colors.unactiveTextIcon, 
+    color: colors.unactiveTextIcon,
     fontFamily: 'Gilroy-Medium',
+  },
+  filterIconButton: {      
+    padding: 8,
+    marginLeft: 4,
   },
   contentContainer: {
     flex: 1,
@@ -75,6 +79,39 @@ export const styles = StyleSheet.create({
   },
   listContent: {
     paddingBottom: 20,
-
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: colors.background,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: colors.primaryText,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  filterOption: {
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.inactiveBar,
+  },
+  closeButton: {
+    marginTop: 20,
+    paddingVertical: 12,
+    backgroundColor: colors.primaryOrange,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  closeText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });
