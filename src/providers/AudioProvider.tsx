@@ -1,7 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { useAudioPlayer, useAudioPlayerStatus, setAudioModeAsync, setIsAudioActiveAsync } from 'expo-audio';
+import { useSelector } from 'react-redux';
 import { Track } from '../types/track';
+import { RootState } from '../redux/store';
 import { playbackService } from '../services/playbackService';
+import { notificationService } from '../services/notificationService';
 
 type RepeatMode = 'none' | 'all' | 'one';
 
@@ -10,8 +13,10 @@ interface AudioContextType {
   isPlaying: boolean;
   status: any;
   playlist: Track[];
+  recentlyPlayed: Track[];
   isShuffle: boolean;
   repeatMode: RepeatMode;
+  trackDuration: number; // Actual duration in seconds from audio player
   playTrack: (track: Track, playlist?: Track[]) => Promise<void>;
   togglePlayback: () => void;
   skipForward: () => void;
@@ -23,8 +28,10 @@ interface AudioContextType {
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
 
 export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { token } = useSelector((state: RootState) => state.auth);
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
   const [playlist, setPlaylist] = useState<Track[]>([]);
+  const [recentlyPlayed, setRecentlyPlayed] = useState<Track[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(-1);
   const [isShuffle, setIsShuffle] = useState(false);
   const [repeatMode, setRepeatMode] = useState<RepeatMode>('none');
@@ -32,9 +39,9 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const lastDidJustFinish = React.useRef(false);
   
   const audioSource = useMemo(() => {
-    if (!currentTrack) return null;
-    return playbackService.getAudioSource(currentTrack);
-  }, [currentTrack]);
+    if (!currentTrack || !token) return null;
+    return playbackService.getAudioSource(currentTrack, token);
+  }, [currentTrack, token]);
 
   const player = useAudioPlayer(audioSource, { 
     updateInterval: 100 
@@ -63,8 +70,14 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
       
       setCurrentTrack(track);
+      setRecentlyPlayed((current) => {
+        const next = [track, ...current.filter((item) => item.id !== track.id)];
+        return next.slice(0, 8);
+      });
       setShouldAutoPlay(true);
       await setIsAudioActiveAsync(true);
+      // Fire Now Playing banner notification
+      notificationService.notify(track, true);
       
     } catch (error) {
       console.error('Error playing track', error);
@@ -175,8 +188,10 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         isPlaying: status.playing,
         status,
         playlist,
+        recentlyPlayed,
         isShuffle,
         repeatMode,
+        trackDuration: status?.duration ?? currentTrack?.duration ?? 0,
         playTrack,
         togglePlayback,
         skipForward,

@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { Track } from '../../types/track';
+import { RootState } from '../index';
 import { searchService } from '../../services/searchService';
 
 interface SearchState {
@@ -18,8 +19,13 @@ const initialState: SearchState = {
 
 export const fetchSearchResults = createAsyncThunk(
   'search/fetchSearchResults',
-  async (query: string) => {
-    return await searchService.searchTracks(query);
+  async (query: string, { getState }) => {
+    const state = getState() as RootState;
+    const token = state.auth.token;
+    if (!token) {
+      throw new Error('Not authenticated. Please login again.');
+    }
+    return await searchService.searchTracks(query, token);
   }
 );
 

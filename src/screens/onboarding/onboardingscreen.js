@@ -1,16 +1,21 @@
 import { Image, Text, TouchableOpacity, View } from "react-native";
-import styles from "./onboardingscreen.styles";
+import { makeOnboardingStyles } from "./onboardingscreen.styles";
 
-const accentDots = [
-  { key: "dot5", style: styles.dot5 },
-  { key: "dot9", style: styles.dot9 },
-  { key: "dot7", style: styles.dot7 },
-  { key: "dot8", style: styles.dot8 },
-  { key: "dot6", style: styles.dot6 },
-  { key: "dot10", style: styles.dot10 },
-];
+import { useTheme } from "../../providers/ThemeProvider";
 
 export default function OnboardingScreen({ navigation }) {
+  const { colors } = useTheme();
+  const styles = makeOnboardingStyles(colors);
+
+  const accentDots = [
+    { key: "dot5", style: styles.dot5 },
+    { key: "dot9", style: styles.dot9 },
+    { key: "dot7", style: styles.dot7 },
+    { key: "dot8", style: styles.dot8 },
+    { key: "dot6", style: styles.dot6 },
+    { key: "dot10", style: styles.dot10 },
+  ];
+
   return (
     <View style={styles.background}>
       <View pointerEvents="none" style={styles.backgroundDecor}>
@@ -62,7 +67,7 @@ export default function OnboardingScreen({ navigation }) {
           <TouchableOpacity
             style={styles.button}
             activeOpacity={0.9}
-            onPress={() => navigation.navigate("LoginScreen")}
+            onPress={() => navigation.navigate("SignUp")}
           >
             <Text style={styles.buttonText}>Let’s Start</Text>
             <Text style={styles.buttonArrow}>→</Text>

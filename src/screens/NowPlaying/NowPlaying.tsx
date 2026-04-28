@@ -11,43 +11,70 @@ import {
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useSelector } from 'react-redux';
 import { useAudio } from '../../providers/AudioProvider';
+import { useTheme } from '../../providers/ThemeProvider';
 import { Track } from '../../types/track';
-import { colors } from '../../constants/colors';
-import { styles } from './NowPlaying.styles';
-
-// ─── Component ────────────────────────────────────────────────────────────────
+import { RootState } from '../../redux/store';
+import { likedApi } from '../../services/LikedService';
+import { makeNowPlayingStyles } from './NowPlaying.styles';
 
 export default function NowPlayingScreen() {
   const navigation = useNavigation();
+  const { token } = useSelector((state: RootState) => state.auth);
+  const { colors } = useTheme();
+  const styles = makeNowPlayingStyles(colors);
 
   // ─── Audio context ──────────────────────────────────────────────────────
-  const { 
-    currentTrack, 
-    isPlaying, 
-    status, 
-    togglePlayback, 
-    skipForward, 
+  const {
+    currentTrack,
+    isPlaying,
+    status,
+    togglePlayback,
+    skipForward,
     skipBackward,
     isShuffle,
     repeatMode,
     toggleShuffle,
     toggleRepeat,
-    playlist 
+    playlist,
+    trackDuration,
   } = useAudio();
 
   // ─── Local state ────────────────────────────────────────────────────────
   const [liked, setLiked] = useState<boolean>(false);
+  const [likeLoading, setLikeLoading] = useState<boolean>(false);
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [dragPosition, setDragPosition] = useState<number>(0);
   const [barWidth, setBarWidth] = useState<number>(1);
+
+  // Check whether current track is liked when track changes
+  useEffect(() => {
+    if (!currentTrack || !token) return;
+    setLiked(false);
+    likedApi.isLiked(currentTrack.id, token)
+      .then(result => setLiked(result))
+      .catch(() => {});
+  }, [currentTrack?.id, token]);
+
+  const handleLikePress = async () => {
+    if (!currentTrack || !token || likeLoading) return;
+    setLikeLoading(true);
+    try {
+      const result = await likedApi.toggleLike(currentTrack.id, token);
+      setLiked(result.liked);
+    } catch (error) {
+      console.error('Error toggling like:', error);
+    } finally {
+      setLikeLoading(false);
+    }
+  };
 
   // ─── Derived playback values ────────────────────────────────────────────
   const positionMs: number = isDragging
     ? dragPosition
     : (status?.currentTime ?? 0) * 1000;
-  const durationMs: number =
-    (status?.duration ?? currentTrack?.duration ?? 0) * 1000;
+  const durationMs: number = trackDuration * 1000;
   const progress: number = durationMs > 0 ? positionMs / durationMs : 0;
 
   // ─── Album art scale animation ──────────────────────────────────────────
@@ -92,7 +119,6 @@ export default function NowPlayingScreen() {
     return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   };
 
-  const repeatIcon: string = 'repeat';
   const repeatColor: string = repeatMode === 'none' ? colors.inactiveBar : '#FF2D78';
 
   const currentIndex = playlist.findIndex(t => t.id === currentTrack?.id);
@@ -165,12 +191,13 @@ export default function NowPlayingScreen() {
             </Text>
           </View>
           <TouchableOpacity
-            onPress={() => setLiked(p => !p)}
+            onPress={handleLikePress}
+            disabled={likeLoading}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
             <Ionicons
               name={liked ? 'heart' : 'heart-outline'}
               size={24}
-              color={liked ? '#FF2D78' : colors.inactiveBar}
+              color={liked ? '#FF2D78' : likeLoading ? colors.inactiveBar : colors.inactiveBar}
             />
           </TouchableOpacity>
         </View>
@@ -183,7 +210,7 @@ export default function NowPlayingScreen() {
           <TouchableOpacity
             onPress={toggleRepeat}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-            <MaterialCommunityIcons name={repeatIcon as any} size={22} color={repeatColor} />
+            <MaterialCommunityIcons name="repeat" size={22} color={repeatColor} />
           </TouchableOpacity>
           <TouchableOpacity
             onPress={toggleShuffle}

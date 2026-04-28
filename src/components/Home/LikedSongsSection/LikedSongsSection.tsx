@@ -8,28 +8,38 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSelector } from "react-redux";
 
 import { colors } from "../../../constants/colors";
 import { useAudio } from "../../../providers/AudioProvider";
 import { likedApi } from "../../../services/LikedService";
 import { Track } from "../../../types/track";
 import { AppText } from "../../Common/AppText";
+import { RootState } from "../../../redux/store";
 import { styles } from "./LikedSongsSection.styles";
 
 export const LikedSongsSection: React.FC = () => {
   const navigation = useNavigation();
   const { currentTrack, isPlaying, playTrack } = useAudio();
+  const { token } = useSelector((state: RootState) => state.auth);
 
   const [likedTracks, setLikedTracks] = useState<Track[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
     likedApi
-      .getLikedSongs()
+      .getLikedSongs(token)
       .then(setLikedTracks)
-      .catch(() => {})
+      .catch((error) => {
+        console.error('Error fetching liked songs:', error);
+      })
       .finally(() => setLoading(false));
-  }, []);
+  }, [token]);
 
   if (loading) {
     return (

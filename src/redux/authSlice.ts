@@ -32,7 +32,9 @@ export const loginUser = createAsyncThunk(
       await SecureStore.setItemAsync('userToken', token);
       return { user, token };
     } catch (error: any) {
-      return rejectWithValue(error.message || 'Login failed');
+      const errorMessage = error?.message || 'Login failed. Please try again.';
+      console.error('Login thunk error:', errorMessage);
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -46,6 +48,7 @@ const authSlice = createSlice({
       state.token = null;
       state.error = null;
       SecureStore.deleteItemAsync('userToken');
+      SecureStore.deleteItemAsync('rememberedEmail');
     },
     clearError: (state) => {
       state.error = null;

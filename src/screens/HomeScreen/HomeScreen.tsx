@@ -2,19 +2,23 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import React, { useMemo, useState } from "react";
-import { Pressable, ScrollView, TouchableOpacity, View } from "react-native";
+import { Image, Pressable, ScrollView, Switch, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AppText } from "../../components/Common/AppText";
 import { Header } from "../../components/Common/Header";
 import { RecommendedList } from "../../components/Home/RecommendedList";
+import { RecentlyPlayedSection } from "../../components/Home/RecentlyPlayedSection";
 import { ListIcon, SearchIcon } from "../../components/Icons";
 import { MiniPlayer } from "../../components/Player/MiniPlayer";
-import { colors } from "../../constants/colors";
-import { styles } from "./HomeScreen.styles";
+import { colors as staticColors } from "../../constants/colors";
+import { useTheme } from "../../providers/ThemeProvider";
+import { makeStyles } from "./HomeScreen.styles";
 
 export const HomeScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { colors, isDark, toggleTheme } = useTheme();
+  const styles = makeStyles(colors);
 
   const menuItems = useMemo(
     () => [
@@ -37,7 +41,10 @@ export const HomeScreen: React.FC = () => {
         key: "playlists",
         label: "Playlists",
         icon: "musical-notes-outline" as const,
-        action: () => setIsSidebarOpen(false),
+        action: () => {
+          setIsSidebarOpen(false);
+          navigation.navigate("Playlists");
+        },
       },
       {
         key: "contact",
@@ -73,6 +80,22 @@ export const HomeScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
+      {/* Background Decorations */}
+      <View pointerEvents="none" style={styles.backgroundDecor}>
+        <Image
+          source={require("../../../assets/images/splash/ellipse1.png")}
+          style={[styles.ellipseAsset, styles.ellipse1]}
+        />
+        <Image
+          source={require("../../../assets/images/splash/ellipse3.png")}
+          style={[styles.ellipseAsset, styles.ellipse3]}
+        />
+        <Image
+          source={require("../../../assets/images/splash/ellipse4.png")}
+          style={[styles.ellipseAsset, styles.ellipse4]}
+        />
+      </View>
+
       <Header
         leftIcon={<ListIcon color={colors.primary} width={25} height={14} />}
         rightIcon={<SearchIcon color={colors.primary} width={18} height={18} />}
@@ -86,6 +109,7 @@ export const HomeScreen: React.FC = () => {
       >
         <View style={styles.heroSection}>
           <RecommendedList />
+          <RecentlyPlayedSection />
         </View>
 
         <View style={{ height: 120 }} />
@@ -101,12 +125,23 @@ export const HomeScreen: React.FC = () => {
           />
 
           <View style={styles.sidebarPanel}>
+            {/* ── Sidebar header: close + Dark Mode toggle ── */}
             <View style={styles.sidebarHeaderRow}>
               <TouchableOpacity
                 onPress={() => setIsSidebarOpen(false)}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
-                <Ionicons name="close" size={18} color={colors.primaryText} />
+                <Ionicons name="close" size={20} color={colors.primaryText} />
+              </TouchableOpacity>
+
+              {/* Dark Mode Toggle */}
+              <TouchableOpacity style={styles.darkModeRow} onPress={toggleTheme}>
+                <Ionicons
+                  name={isDark ? "moon" : "moon-outline"}
+                  size={24}
+                  color={isDark ? colors.accent : colors.secondaryText}
+                  style={{ marginRight: 6 }}
+                />
               </TouchableOpacity>
             </View>
 
@@ -118,15 +153,18 @@ export const HomeScreen: React.FC = () => {
                   activeOpacity={0.8}
                   onPress={item.action}
                 >
-                  <Ionicons
-                    name={item.icon}
-                    size={15}
-                    color={colors.secondaryText}
-                    style={styles.sidebarItemIcon}
-                  />
-                  <AppText style={styles.sidebarItemLabel}>
-                    {item.label}
-                  </AppText>
+                  <View style={styles.sidebarItemIcon}>
+                    <Ionicons
+                      name={item.icon}
+                      size={17}
+                      color={colors.secondaryText}
+                    />
+                  </View>
+                  <View style={styles.sidebarItemLabel}>
+                    <AppText fontWeight="medium" style={styles.sidebarItemText} numberOfLines={1}>
+                      {item.label}
+                    </AppText>
+                  </View>
                 </TouchableOpacity>
               ))}
             </View>

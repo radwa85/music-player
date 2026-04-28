@@ -1,39 +1,52 @@
 import React, { useEffect, useState } from 'react';
 import { View, FlatList, ActivityIndicator } from 'react-native';
+import { useSelector } from 'react-redux';
 import { AppText } from '../Common/AppText';
 import { homeService } from '../../services/homeService';
 import { Track } from '../../types/track';
 import { SongCard } from './SongCard';
-import { styles } from './RecommendedList.styles';
-import { colors } from '../../constants/colors';
+import { makeRecommendedStyles } from './RecommendedList.styles';
+import { useTheme } from '../../providers/ThemeProvider';
+import { RootState } from '../../redux/store';
 
 export const RecommendedList: React.FC = () => {
+  const { colors } = useTheme();
+  const styles = makeRecommendedStyles(colors);
+  
   const [tracks, setTracks] = useState<Track[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { token } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     const fetchTracks = async () => {
       try {
+        if (!token) {
+          setError('Not authenticated. Please login again.');
+          setLoading(false);
+          return;
+        }
+
         setLoading(true);
-        const data = await homeService.getRecommendations();
+        const data = await homeService.getRecommendations(token);
         setTracks(data);
         setError(null);
       } catch (err) {
-        setError('Failed to load recommendations');
-        console.error(err);
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load recommendations';
+        setError(errorMessage);
+        console.error('Recommendations error:', err);
       } finally {
         setLoading(false);
       }
     };
 
     fetchTracks();
-  }, []);
+  }, [token]);
 
   if (loading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color={colors.primaryOrange} />
+        <ActivityIndicator size="large" color={colors.accent} />
       </View>
     );
   }
@@ -55,7 +68,7 @@ export const RecommendedList: React.FC = () => {
   }
 
   return (
-    <View >
+    <View>
       <AppText fontWeight="bold" style={styles.title}>Recommended for you</AppText>
       <FlatList
         data={tracks}
