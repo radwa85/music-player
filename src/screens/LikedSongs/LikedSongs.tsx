@@ -2,13 +2,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import React, { useCallback, useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  FlatList,
-  Image,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    FlatList,
+    Image,
+    Pressable,
+    TouchableOpacity,
+    View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AppText } from "../../components/Common/AppText";
 import { MiniPlayer } from "../../components/Player/MiniPlayer";
@@ -25,15 +26,15 @@ interface SongCardProps {
   isPlaying: boolean;
   isCurrentTrack: boolean;
   onPress: () => void;
-  onUnlike: () => void;
 }
+
+type SortOption = "title" | "artist" | "duration";
 
 const SongCard: React.FC<SongCardProps> = ({
   track,
   isPlaying,
   isCurrentTrack,
   onPress,
-  onUnlike,
 }) => {
   return (
     <TouchableOpacity
@@ -55,15 +56,6 @@ const SongCard: React.FC<SongCardProps> = ({
             <Ionicons name="play-circle" size={40} color="#fff" />
           </View>
         )}
-
-        {/* Unlike button */}
-        <TouchableOpacity
-          style={styles.likeButton}
-          onPress={onUnlike}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-        >
-          <Ionicons name="heart" size={16} color="#E8365D" />
-        </TouchableOpacity>
       </View>
 
       <View style={styles.cardInfo}>
@@ -87,6 +79,25 @@ export const LikedSongsScreen: React.FC = () => {
   const [likedTracks, setLikedTracks] = useState<Track[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showSortMenu, setShowSortMenu] = useState(false);
+  const [sortBy, setSortBy] = useState<SortOption>("title");
+
+  const sortedTracks = React.useMemo(() => {
+    const tracks = [...likedTracks];
+
+    if (sortBy === "artist") {
+      tracks.sort((a, b) => a.artist.localeCompare(b.artist));
+      return tracks;
+    }
+
+    if (sortBy === "duration") {
+      tracks.sort((a, b) => b.duration - a.duration);
+      return tracks;
+    }
+
+    tracks.sort((a, b) => a.title.localeCompare(b.title));
+    return tracks;
+  }, [likedTracks, sortBy]);
 
   // ── Fetch liked songs ──────────────────────────────────────────────────────
   const fetchLikedSongs = useCallback(async () => {
@@ -106,32 +117,6 @@ export const LikedSongsScreen: React.FC = () => {
     fetchLikedSongs();
   }, [fetchLikedSongs]);
 
-  // ── Unlike handler ─────────────────────────────────────────────────────────
-  const handleUnlike = useCallback((track: Track) => {
-    Alert.alert(
-      "Remove from Liked Songs",
-      `Remove "${track.title}" from your liked songs?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Remove",
-          style: "destructive",
-          onPress: async () => {
-            // Optimistic update
-            setLikedTracks((prev) => prev.filter((t) => t.id !== track.id));
-            try {
-              await (likedApi as any).toggleLike(track.id);
-            } catch {
-              // Revert on failure
-              setLikedTracks((prev) => [track, ...prev]);
-              Alert.alert("Error", "Could not remove song. Please try again.");
-            }
-          },
-        },
-      ],
-    );
-  }, []);
-
   // ── Render ─────────────────────────────────────────────────────────────────
   const renderItem = useCallback(
     ({ item }: { item: Track }) => {
@@ -142,11 +127,10 @@ export const LikedSongsScreen: React.FC = () => {
           isCurrentTrack={isCurrentTrack}
           isPlaying={isCurrentTrack && isPlaying}
           onPress={() => playTrack(item)}
-          onUnlike={() => handleUnlike(item)}
         />
       );
     },
-    [currentTrack, isPlaying, playTrack, handleUnlike],
+    [currentTrack, isPlaying, playTrack],
   );
 
   const renderEmpty = () => (
@@ -166,31 +150,97 @@ export const LikedSongsScreen: React.FC = () => {
     </View>
   );
 
+  const renderSortOption = (
+    value: SortOption,
+    title: string,
+    detail: string,
+    icon: React.ComponentProps<typeof Ionicons>["name"],
+  ) => {
+    const isSelected = sortBy === value;
+
+    return (
+      <TouchableOpacity
+        key={value}
+        style={[styles.sortOption, isSelected && styles.sortOptionSelected]}
+        activeOpacity={0.85}
+        onPress={() => {
+          setSortBy(value);
+          setShowSortMenu(false);
+        }}
+      >
+        <View style={styles.sortIconWrap}>
+          <Ionicons name={icon} size={16} color={colors.primaryText} />
+        </View>
+        <View style={styles.sortTextWrap}>
+          <AppText fontWeight="bold" style={styles.sortOptionTitle}>
+            {title}
+          </AppText>
+          <AppText style={styles.sortOptionDetail}>{detail}</AppText>
+        </View>
+        {isSelected && (
+          <Ionicons name="checkmark-circle" size={18} color="#2B8A3E" />
+        )}
+      </TouchableOpacity>
+    );
+  };
+
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       {/* ── Header ── */}
-      <View style={styles.header}>
+      <View style={styles.headerActionsRow}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
           hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
         >
-          <Ionicons name="arrow-back" size={24} color={colors.primaryText} />
+          <Ionicons name="arrow-back" size={20} color={colors.primaryText} />
         </TouchableOpacity>
 
-        <AppText fontWeight="bold" style={styles.headerTitle}>
-          Liked Songs
-        </AppText>
-
-        {/* Filter / sort placeholder — wire up as needed */}
-        <TouchableOpacity style={styles.filterButton}>
+        <TouchableOpacity
+          style={styles.filterButton}
+          onPress={() => setShowSortMenu((prev) => !prev)}
+          activeOpacity={0.85}
+        >
           <Ionicons
             name="options-outline"
-            size={24}
+            size={20}
             color={colors.primaryText}
           />
         </TouchableOpacity>
       </View>
+
+      <View style={styles.headerTitleRow}>
+        <AppText fontWeight="bold" style={styles.headerTitle}>
+          Liked Songs
+        </AppText>
+      </View>
+
+      {showSortMenu && (
+        <>
+          <Pressable
+            style={styles.sortBackdrop}
+            onPress={() => setShowSortMenu(false)}
+          />
+          <View style={styles.sortMenu}>
+            <AppText fontWeight="bold" style={styles.sortTitle}>
+              Sort songs by
+            </AppText>
+            {renderSortOption("title", "A-Z", "Sort by song title", "text")}
+            {renderSortOption(
+              "artist",
+              "Artist",
+              "Group by artist name",
+              "person",
+            )}
+            {renderSortOption(
+              "duration",
+              "Duration",
+              "Longest tracks first",
+              "time-outline",
+            )}
+          </View>
+        </>
+      )}
 
       {/* ── Body ── */}
       {loading ? (
@@ -209,14 +259,14 @@ export const LikedSongsScreen: React.FC = () => {
         </View>
       ) : (
         <FlatList
-          data={likedTracks}
+          data={sortedTracks}
           keyExtractor={(item) => String(item.id)}
           renderItem={renderItem}
           numColumns={2}
           columnWrapperStyle={styles.row}
           contentContainerStyle={[
             styles.listContent,
-            likedTracks.length === 0 && { flex: 1 },
+            sortedTracks.length === 0 && { flex: 1 },
           ]}
           ListEmptyComponent={renderEmpty}
           showsVerticalScrollIndicator={false}
@@ -225,6 +275,6 @@ export const LikedSongsScreen: React.FC = () => {
 
       {/* ── Mini Player ── */}
       <MiniPlayer />
-    </View>
+    </SafeAreaView>
   );
 };

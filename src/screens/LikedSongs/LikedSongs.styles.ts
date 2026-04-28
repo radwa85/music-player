@@ -1,93 +1,153 @@
-import { StyleSheet, Dimensions } from 'react-native';
-import { colors } from '../../constants/colors';
+import { Dimensions, StyleSheet } from "react-native";
+import { colors } from "../../constants/colors";
 
-const { width } = Dimensions.get('window');
-const CARD_SIZE = (width - 48) / 2;
+const { width } = Dimensions.get("window");
+const CARD_SIZE = (width - 58) / 2;
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  headerActionsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 14,
+    paddingTop: 8,
+    paddingBottom: 4,
+  },
+  headerTitleRow: {
     paddingHorizontal: 20,
-    paddingTop: 56,
-    paddingBottom: 16,
+    paddingTop: 8,
+    paddingBottom: 12,
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 18,
     color: colors.primaryText,
   },
   backButton: {
-    padding: 4,
+    padding: 6,
   },
   filterButton: {
-    padding: 4,
+    padding: 6,
+    zIndex: 30,
+  },
+  sortBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 20,
+  },
+  sortMenu: {
+    position: "absolute",
+    top: 58,
+    right: 14,
+    zIndex: 25,
+    width: 220,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 14,
+    padding: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.1,
+    shadowRadius: 16,
+    elevation: 6,
+  },
+  sortTitle: {
+    fontSize: 13,
+    color: colors.primaryText,
+    marginBottom: 8,
+    paddingHorizontal: 4,
+  },
+  sortOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 8,
+    marginBottom: 4,
+  },
+  sortOptionSelected: {
+    backgroundColor: "#F5F7FB",
+  },
+  sortIconWrap: {
+    width: 28,
+    height: 28,
+    borderRadius: 8,
+    backgroundColor: "#EEF2F8",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 8,
+  },
+  sortTextWrap: {
+    flex: 1,
+  },
+  sortOptionTitle: {
+    fontSize: 13,
+    color: colors.primaryText,
+  },
+  sortOptionDetail: {
+    fontSize: 11,
+    color: colors.secondaryText,
   },
   listContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 100,
+    paddingHorizontal: 20,
+    paddingBottom: 116,
   },
   row: {
-    justifyContent: 'space-between',
-    marginBottom: 16,
+    justifyContent: "space-between",
+    marginBottom: 14,
   },
   card: {
     width: CARD_SIZE,
     borderRadius: 12,
-    overflow: 'hidden',
-    backgroundColor: '#fff',
   },
   cardImageWrapper: {
     width: CARD_SIZE,
     height: CARD_SIZE,
-    position: 'relative',
+    position: "relative",
   },
   cardImage: {
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
     borderRadius: 12,
   },
   playingOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(9, 17, 39, 0.45)',
+    backgroundColor: "rgba(9, 17, 39, 0.45)",
     borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   likeButton: {
-    position: 'absolute',
+    position: "absolute",
     top: 8,
     right: 8,
-    backgroundColor: 'rgba(255,255,255,0.85)',
+    backgroundColor: "rgba(255,255,255,0.85)",
     borderRadius: 20,
     padding: 5,
   },
   cardInfo: {
-    paddingTop: 8,
-    paddingBottom: 4,
-    paddingHorizontal: 2,
+    paddingTop: 7,
+    paddingBottom: 2,
+    paddingHorizontal: 1,
   },
   cardTitle: {
-    fontSize: 13,
+    fontSize: 12,
     color: colors.primaryText,
     marginBottom: 2,
   },
   cardArtist: {
-    fontSize: 11,
+    fontSize: 10,
     color: colors.secondaryText,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    textTransform: "capitalize",
+    letterSpacing: 0.2,
   },
 
   // Empty state
   emptyContainer: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     paddingBottom: 80,
   },
   emptyIcon: {
@@ -102,28 +162,28 @@ export const styles = StyleSheet.create({
   emptySubtitle: {
     fontSize: 13,
     color: colors.secondaryText,
-    textAlign: 'center',
+    textAlign: "center",
     paddingHorizontal: 40,
   },
 
   // Loading
   loadingContainer: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   // Error
   errorContainer: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     paddingHorizontal: 32,
   },
   errorText: {
     fontSize: 14,
     color: colors.secondaryText,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 16,
   },
   retryButton: {
@@ -133,7 +193,7 @@ export const styles = StyleSheet.create({
     borderRadius: 24,
   },
   retryText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 14,
   },
 
