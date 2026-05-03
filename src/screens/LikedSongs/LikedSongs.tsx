@@ -2,22 +2,24 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import React, { useCallback, useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    FlatList,
-    Image,
-    Pressable,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  FlatList,
+  Image,
+  Pressable,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useSelector } from "react-redux";
 
 import { AppText } from "../../components/Common/AppText";
 import { MiniPlayer } from "../../components/Player/MiniPlayer";
-import { colors } from "../../constants/colors";
 import { useAudio } from "../../providers/AudioProvider";
+import { useTheme } from "../../providers/ThemeProvider";
 import { likedApi } from "../../services/LikedService";
 import { Track } from "../../types/track";
-import { styles } from "./LikedSongs.styles";
+import { RootState } from "../../redux/store";
+import { makeLikedSongsStyles } from "./LikedSongs.styles";
 
 // ─── Song Card ────────────────────────────────────────────────────────────────
 
@@ -36,6 +38,9 @@ const SongCard: React.FC<SongCardProps> = ({
   isCurrentTrack,
   onPress,
 }) => {
+  const { colors } = useTheme();
+  const styles = makeLikedSongsStyles(colors);
+
   return (
     <TouchableOpacity
       style={styles.card}
@@ -75,6 +80,9 @@ const SongCard: React.FC<SongCardProps> = ({
 export const LikedSongsScreen: React.FC = () => {
   const navigation = useNavigation();
   const { currentTrack, isPlaying, playTrack } = useAudio();
+  const { token } = useSelector((state: RootState) => state.auth);
+  const { colors } = useTheme();
+  const styles = makeLikedSongsStyles(colors);
 
   const [likedTracks, setLikedTracks] = useState<Track[]>([]);
   const [loading, setLoading] = useState(true);
@@ -102,16 +110,26 @@ export const LikedSongsScreen: React.FC = () => {
   // ── Fetch liked songs ──────────────────────────────────────────────────────
   const fetchLikedSongs = useCallback(async () => {
     try {
+      if (!token) {
+        setError("Not authenticated. Please login again.");
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       setError(null);
-      const tracks = await (likedApi as any).getLikedSongs();
+      const tracks = await likedApi.getLikedSongs(token);
       setLikedTracks(tracks);
-    } catch {
-      setError("Failed to load liked songs. Please try again.");
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Failed to load liked songs. Please try again.";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [token]);
 
   useEffect(() => {
     fetchLikedSongs();
@@ -245,7 +263,7 @@ export const LikedSongsScreen: React.FC = () => {
       {/* ── Body ── */}
       {loading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primaryText} />
+          <ActivityIndicator size="large" color={colors.accent} />
         </View>
       ) : error ? (
         <View style={styles.errorContainer}>

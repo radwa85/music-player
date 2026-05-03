@@ -1,5 +1,5 @@
 import { Track } from '../types/track';
-import { API_BASE_URL, AUTH_TOKEN } from '../constants/config';
+import { API_BASE_URL } from '../constants/config';
 
 export const playbackService = {
  
@@ -14,11 +14,11 @@ export const playbackService = {
   },
 
   
-  getAudioSource(track: Track) {
+  getAudioSource(track: Track, token: string) {
     return {
       uri: this.getTrackStreamUrl(track),
       headers: {
-        'Authorization': `Bearer ${AUTH_TOKEN}`,
+        'Authorization': `Bearer ${token}`,
       }
     };
   }

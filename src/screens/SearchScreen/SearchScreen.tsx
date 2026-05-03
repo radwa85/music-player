@@ -11,9 +11,12 @@ import { MiniPlayer } from '../../components/Player/MiniPlayer';
 import { AppText } from '../../components/Common/AppText';
 import { colors } from '../../constants/colors';
 import { FilterModal, GenreOption } from '../../components/filter/FilterModal';
-import { styles } from './SearchScreen.styles';
+import { makeSearchStyles } from './SearchScreen.styles';
+import { useTheme } from '../../providers/ThemeProvider';
 
 export const SearchScreen: React.FC = () => {
+  const { colors } = useTheme();
+  const styles = makeSearchStyles(colors);
   const dispatch = useDispatch<AppDispatch>();
   const { query, results, loading, error } = useSelector((state: RootState) => state.search);
   const [filterModalVisible, setFilterModalVisible] = useState(false);

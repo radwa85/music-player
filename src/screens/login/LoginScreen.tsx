@@ -6,40 +6,95 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  TouchableOpacity,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { loginUser } from '../../redux/authSlice';
+import { loginUser, clearError } from '../../redux/authSlice';
 import { AppDispatch, RootState } from '../../redux/store';
-import { router } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
 import CustomButton from '../login/custombutton';
 import { Ionicons } from '@expo/vector-icons';
-import { loginStyles as styles } from './loginstyle';
+import { makeLoginStyles } from './loginstyle';
+import { useTheme } from '../../providers/ThemeProvider';
+
+// ── Validation helpers ─────────────────────────────────────────────────────────
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+function validateEmail(email: string): string | null {
+  if (!email.trim()) return 'Email address is required.';
+  if (!EMAIL_REGEX.test(email.trim()))
+    return 'Please enter a valid email address (e.g. user@example.com).';
+  return null;
+}
+
+function validatePassword(password: string): string | null {
+  if (!password) return 'Password is required.';
+  if (password.length < 6)
+    return 'Password must be at least 6 characters long.';
+  if (password.length > 128)
+    return 'Password is too long (max 128 characters).';
+  if (/\s/.test(password))
+    return 'Password must not contain spaces.';
+  return null;
+}
+
+// ── Component ──────────────────────────────────────────────────────────────────
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
+  // Inline error messages (show under each field)
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+
+  const { colors } = useTheme();
+  const styles = makeLoginStyles(colors);
+
+  const navigation = useNavigation<any>();
   const dispatch = useDispatch<AppDispatch>();
-  const { isLoading, error } = useSelector((state: RootState) => state.auth);
+  const { isLoading } = useSelector((state: RootState) => state.auth);
 
+  // ── Field-level live validation ─────────────────────────────────────────────
+  const handleEmailChange = (val: string) => {
+    setEmail(val);
+    if (emailError) setEmailError(validateEmail(val));
+  };
+
+  const handlePasswordChange = (val: string) => {
+    setPassword(val);
+    if (passwordError) setPasswordError(validatePassword(val));
+  };
+
+  // ── Submit ──────────────────────────────────────────────────────────────────
   const handleLogin = async () => {
-    if (!email.trim() || !password.trim()) {
-      Alert.alert('Attention', 'Please enter both email and password');
-      return;
-    }
+    const eErr = validateEmail(email);
+    const pErr = validatePassword(password);
 
-    const result = await dispatch(loginUser({ email, password }));
+    setEmailError(eErr);
+    setPasswordError(pErr);
 
-    if (loginUser.fulfilled.match(result)) {
-      router.replace('/(tabs)');
-    } else {
-      let errorMsg = error || 'Login failed';
-      if (error?.includes('405')) {
-        errorMsg = 'Error 405: Request method not supported. Check server URL.';
+    if (eErr || pErr) return; // Stop — show inline errors
+
+    try {
+      const result = await dispatch(loginUser({ email: email.trim(), password }));
+
+      if (loginUser.fulfilled.match(result)) {
+        dispatch(clearError());
+        navigation.replace('Home');
+      } else if (loginUser.rejected.match(result)) {
+        const errorMsg = (result.payload as string) || 'Login failed. Please try again.';
+        Alert.alert('Login Failed', errorMsg, [{ text: 'OK', style: 'default' }]);
       }
-      Alert.alert('Error', errorMsg);
+    } catch (err) {
+      console.error('Login error:', err);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
     }
   };
 
+  // ── Render ──────────────────────────────────────────────────────────────────
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -65,35 +120,63 @@ export default function LoginScreen() {
           </View>
         </View>
 
+        {/* ── Email Field ── */}
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Email</Text>
-          <View style={styles.inputWrapper}>
-            <Ionicons name="mail-outline" size={20} color="#666" style={styles.inputIcon} />
+          <View style={[styles.inputWrapper, emailError ? { borderColor: '#C4401D', borderWidth: 1 } : {}]}>
+            <Ionicons name="mail-outline" size={20} color={emailError ? '#C4401D' : '#666'} style={styles.inputIcon} />
             <TextInput
               style={styles.inputEmail}
               placeholder="Email Address"
               placeholderTextColor="#999"
               value={email}
-              onChangeText={setEmail}
+              onChangeText={handleEmailChange}
+              onBlur={() => setEmailError(validateEmail(email))}
               keyboardType="email-address"
               autoCapitalize="none"
+              autoCorrect={false}
             />
           </View>
+          {emailError ? (
+            <Text style={{ color: '#C4401D', fontSize: 12, marginTop: 4, marginLeft: 4 }}>
+              {emailError}
+            </Text>
+          ) : null}
         </View>
 
+        {/* ── Password Field ── */}
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Password</Text>
-          <View style={styles.inputWrapperPassword}>
-            <Ionicons name="lock-closed-outline" size={20} color="#666" style={styles.inputIcon} />
+          <View style={[styles.inputWrapperPassword, passwordError ? { borderColor: '#C4401D', borderWidth: 1 } : {}]}>
+            <Ionicons name="lock-closed-outline" size={20} color={passwordError ? '#C4401D' : '#666'} style={styles.inputIcon} />
             <TextInput
               style={styles.inputPassword}
               placeholder="Password"
               placeholderTextColor="#999"
-              secureTextEntry
+              secureTextEntry={!showPassword}
               value={password}
-              onChangeText={setPassword}
+              onChangeText={handlePasswordChange}
+              onBlur={() => setPasswordError(validatePassword(password))}
+              autoCapitalize="none"
+              autoCorrect={false}
             />
+            <TouchableOpacity
+              onPress={() => setShowPassword(v => !v)}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              style={{ paddingRight: 12 }}
+            >
+              <Ionicons
+                name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                size={20}
+                color="#999"
+              />
+            </TouchableOpacity>
           </View>
+          {passwordError ? (
+            <Text style={{ color: '#C4401D', fontSize: 12, marginTop: 4, marginLeft: 4 }}>
+              {passwordError}
+            </Text>
+          ) : null}
         </View>
 
         <CustomButton
@@ -101,6 +184,15 @@ export default function LoginScreen() {
           onPress={handleLogin}
           loading={isLoading}
         />
+
+        <TouchableOpacity
+          onPress={() => navigation.navigate('SignUp')}
+          style={{ marginTop: 18, alignItems: 'center' }}
+        >
+          <Text style={styles.authPrompt}>
+            Don't have an account? <Text style={styles.authLink}>Sign up</Text>
+          </Text>
+        </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
   );
