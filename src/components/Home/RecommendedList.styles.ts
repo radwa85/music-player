@@ -7,11 +7,28 @@ export const makeRecommendedStyles = (colors: ThemeColors) =>
       fontSize: 24,
       color: colors.primaryText,
       fontWeight: 'bold',
-      marginBottom: 16,
+      marginBottom: 4,
+    },
+    titleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
       paddingHorizontal: 20,
+      marginBottom: 12,
+    },
+    seeAllButton: {
+      paddingVertical: 6,
+      paddingHorizontal: 10,
+      borderRadius: 6,
+    },
+    seeAllText: {
+      fontSize: 14,
+      color: colors.accent,
+      fontWeight: '600',
     },
     listContent: {
       paddingHorizontal: 20,
+      paddingTop: 6,
     },
     centerContainer: {
       height: 200,

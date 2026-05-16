@@ -3,8 +3,9 @@ import { View, TouchableOpacity, Image } from 'react-native';
 import { AppText } from '../Common/AppText';
 import { Track } from '../../types/track';
 import { useAudio } from '../../providers/AudioProvider';
-import { styles } from './SearchSongCard.styles';
 import { PauseIcon } from '../Icons';
+import { useTheme } from '../../providers/ThemeProvider';
+import { makeSearchSongCardStyles } from './SearchSongCard.styles';
 
 interface SearchSongCardProps {
   track: Track;
@@ -14,6 +15,8 @@ interface SearchSongCardProps {
 export const SearchSongCard: React.FC<SearchSongCardProps> = ({ track, playlist }) => {
   const { playTrack, currentTrack, isPlaying } = useAudio();
   const isActive = currentTrack?.id === track.id;
+  const { colors } = useTheme();
+  const styles = makeSearchSongCardStyles(colors);
 
   return (
     <TouchableOpacity 

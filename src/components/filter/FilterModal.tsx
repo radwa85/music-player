@@ -2,8 +2,8 @@ import React from 'react';
 import { Modal, View, TouchableOpacity, FlatList } from 'react-native';
 import { AppText } from '../Common/AppText';
 import { Ionicons } from '@expo/vector-icons';
-import { styles } from './FilterModal.styles';
-import { colors } from '../../constants/colors';
+import { makeFilterStyles } from './FilterModal.styles';
+import { useTheme } from '../../providers/ThemeProvider';
 
 export type GenreOption = 'pop' | 'rock' | 'jazz' | 'classical' | 'hiphop' | 'electronic' | 'other' | 'all';
 
@@ -35,6 +35,8 @@ export const FilterModal: React.FC<FilterModalProps> = ({
     onSelectGenre(genre);
     onClose();
   };
+  const { colors } = useTheme();
+  const styles = makeFilterStyles(colors);
 
   return (
     <Modal

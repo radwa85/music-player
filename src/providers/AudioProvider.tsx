@@ -4,7 +4,6 @@ import { useSelector } from 'react-redux';
 import { Track } from '../types/track';
 import { RootState } from '../redux/store';
 import { playbackService } from '../services/playbackService';
-import { notificationService } from '../services/notificationService';
 
 type RepeatMode = 'none' | 'all' | 'one';
 
@@ -61,11 +60,8 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
 
       if (currentTrack?.id === track.id) {
-        if (player.playing) {
-          player.pause();
-        } else {
-          player.play();
-        }
+        player.seekTo(0);
+        player.play();
         return;
       }
       
@@ -76,8 +72,6 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       });
       setShouldAutoPlay(true);
       await setIsAudioActiveAsync(true);
-      // Fire Now Playing banner notification
-      notificationService.notify(track, true);
       
     } catch (error) {
       console.error('Error playing track', error);
@@ -137,7 +131,13 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         player.seekTo(0);
         player.play();
       } else if (isShuffle) {
-        const nextIndex = Math.floor(Math.random() * playlist.length);
+        if (playlist.length === 0) return;
+
+        let nextIndex = Math.floor(Math.random() * playlist.length);
+        if (playlist.length > 1 && nextIndex === currentIndex) {
+          nextIndex = (nextIndex + 1) % playlist.length;
+        }
+
         playTrack(playlist[nextIndex]);
       } else if (repeatMode === 'all' || currentIndex < playlist.length - 1) {
         skipForward();

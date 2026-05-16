@@ -1,9 +1,10 @@
 import { StyleSheet } from 'react-native';
-import { colors } from '../../../constants/colors';
+import { ThemeColors } from '../../../providers/ThemeProvider';
 
 export const CARD_SIZE = 120;
 
-export const styles = StyleSheet.create({
+export const makeLikedSongsSectionStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   section: {
     marginTop: 24,
   },
@@ -79,4 +80,4 @@ export const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.secondaryText,
   },
-});
+  });

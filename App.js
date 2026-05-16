@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { StatusBar } from "expo-status-bar";
@@ -6,6 +6,7 @@ import { Provider } from "react-redux";
 import * as Font from "expo-font";
 
 import { store } from "./src/redux/store";
+import { restoreAuth } from "./src/redux/authSlice";
 import { AudioProvider } from "./src/providers/AudioProvider";
 import { ThemeProvider, useTheme } from "./src/providers/ThemeProvider";
 
@@ -17,6 +18,8 @@ import { LikedSongsScreen } from "./src/screens/LikedSongs/LikedSongs";
 import NowPlayingScreen from "./src/screens/NowPlaying/NowPlaying";
 import SignUpScreen from "./src/screens/SignUpScreen/SignUpScreen";
 import { PlaylistsScreen } from "./src/screens/Playlists/Playlists";
+import PlaylistManagementScreen from "./src/screens/PlaylistManagement/PlaylistManagement";
+import PlaylistDetailScreen from "./src/screens/PlaylistManagement/PlaylistDetail";
 
 const Stack = createNativeStackNavigator();
 
@@ -32,6 +35,8 @@ function AppNavigator() {
           <Stack.Screen name="SignUp" component={SignUpScreen} />
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="Playlists" component={PlaylistsScreen} />
+          <Stack.Screen name="PlaylistManagement" component={PlaylistManagementScreen} />
+          <Stack.Screen name="PlaylistDetail" component={PlaylistDetailScreen} />
           <Stack.Screen name="Search" component={SearchScreen} />
           <Stack.Screen name="LikedSongs" component={LikedSongsScreen} />
           <Stack.Screen
@@ -48,8 +53,6 @@ function AppNavigator() {
 }
 
 export default function App() {
-  const [fontsLoaded, setFontsLoaded] = useState(false);
-
   useEffect(() => {
     const loadFonts = async () => {
       try {
@@ -58,19 +61,19 @@ export default function App() {
           "Gilroy-Medium": require("./assets/fonts/Gilroy-Medium.ttf"),
           "Gilroy-Bold": require("./assets/fonts/Gilroy-Bold.ttf"),
         });
-
-        setFontsLoaded(true);
       } catch (error) {
         console.error("Font loading error:", error);
       }
     };
 
     loadFonts();
+    // restore auth token from secure storage into redux
+    try {
+      store.dispatch(restoreAuth());
+    } catch (err) {
+      console.warn('Auth restore failed', err);
+    }
   }, []);
-
-  if (!fontsLoaded) {
-    return null;
-  }
 
   return (
     <Provider store={store}>

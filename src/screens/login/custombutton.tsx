@@ -1,7 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, ActivityIndicator, StyleSheet, ViewStyle } from 'react-native';
-import { colors } from '../../constants/colors';
 import { AppText } from '../../components/Common/AppText';
+import { useTheme } from '../../providers/ThemeProvider';
 
 interface CustomButtonProps {
   title: string;
@@ -17,14 +17,17 @@ export default function CustomButton({
   onPress,
   loading = false,
   disabled = false,
-  buttonColor = colors.accent,
+  buttonColor,
   style,
 }: CustomButtonProps) {
+  const { colors } = useTheme();
+  const bgColor = buttonColor ?? colors.accent;
+
   return (
     <TouchableOpacity
       style={[
         styles.button,
-        { backgroundColor: buttonColor },
+        { backgroundColor: bgColor },
         (disabled || loading) && styles.buttonDisabled,
         style,
       ]}

@@ -3,8 +3,9 @@ import { View, TouchableOpacity, Image } from 'react-native';
 import { AppText } from '../Common/AppText';
 import { Track } from '../../types/track';
 import { useAudio } from '../../providers/AudioProvider';
-import { styles } from './SongCard.styles';
 import { PauseIcon } from '../Icons';
+import { useTheme } from '../../providers/ThemeProvider';
+import { makeSongCardStyles } from './SongCard.styles';
 
 interface SongCardProps {
   track: Track;
@@ -14,6 +15,8 @@ interface SongCardProps {
 export const SongCard: React.FC<SongCardProps> = ({ track, playlist }) => {
   const { playTrack, currentTrack, isPlaying } = useAudio();
   const isActive = currentTrack?.id === track.id;
+  const { colors } = useTheme();
+  const styles = makeSongCardStyles(colors);
 
   return (
     <TouchableOpacity 

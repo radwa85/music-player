@@ -23,3 +23,5 @@ export const AppText: React.FC<AppTextProps> = ({
     </Text>
   );
 };
+
+export default AppText;

@@ -45,6 +45,7 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   // Inline error messages (show under each field)
   const [emailError, setEmailError] = useState<string | null>(null);
@@ -79,7 +80,7 @@ export default function LoginScreen() {
     if (eErr || pErr) return; // Stop — show inline errors
 
     try {
-      const result = await dispatch(loginUser({ email: email.trim(), password }));
+      const result = await dispatch(loginUser({ email: email.trim(), password, rememberMe }));
 
       if (loginUser.fulfilled.match(result)) {
         dispatch(clearError());
@@ -110,7 +111,7 @@ export default function LoginScreen() {
 
         <View style={styles.sectionHeader}>
           <View style={styles.iconCircle}>
-            <Ionicons name="log-in-outline" size={22} color="#C4401D" />
+            <Ionicons name="log-in-outline" size={22} color={colors.primaryOrange} />
           </View>
           <View>
             <Text style={styles.sectionTitle}>Log In</Text>
@@ -123,12 +124,12 @@ export default function LoginScreen() {
         {/* ── Email Field ── */}
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Email</Text>
-          <View style={[styles.inputWrapper, emailError ? { borderColor: '#C4401D', borderWidth: 1 } : {}]}>
-            <Ionicons name="mail-outline" size={20} color={emailError ? '#C4401D' : '#666'} style={styles.inputIcon} />
+          <View style={[styles.inputWrapper, emailError ? { borderColor: colors.primaryOrange, borderWidth: 1 } : {}]}>
+            <Ionicons name="mail-outline" size={20} color={emailError ? colors.primaryOrange : colors.secondaryText} style={styles.inputIcon} />
             <TextInput
               style={styles.inputEmail}
               placeholder="Email Address"
-              placeholderTextColor="#999"
+              placeholderTextColor={colors.placeholder}
               value={email}
               onChangeText={handleEmailChange}
               onBlur={() => setEmailError(validateEmail(email))}
@@ -138,7 +139,7 @@ export default function LoginScreen() {
             />
           </View>
           {emailError ? (
-            <Text style={{ color: '#C4401D', fontSize: 12, marginTop: 4, marginLeft: 4 }}>
+            <Text style={{ color: colors.primaryOrange, fontSize: 12, marginTop: 4, marginLeft: 4 }}>
               {emailError}
             </Text>
           ) : null}
@@ -147,12 +148,12 @@ export default function LoginScreen() {
         {/* ── Password Field ── */}
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Password</Text>
-          <View style={[styles.inputWrapperPassword, passwordError ? { borderColor: '#C4401D', borderWidth: 1 } : {}]}>
-            <Ionicons name="lock-closed-outline" size={20} color={passwordError ? '#C4401D' : '#666'} style={styles.inputIcon} />
+          <View style={[styles.inputWrapperPassword, passwordError ? { borderColor: colors.primaryOrange, borderWidth: 1 } : {}]}>
+            <Ionicons name="lock-closed-outline" size={20} color={passwordError ? colors.primaryOrange : colors.secondaryText} style={styles.inputIcon} />
             <TextInput
               style={styles.inputPassword}
               placeholder="Password"
-              placeholderTextColor="#999"
+              placeholderTextColor={colors.placeholder}
               secureTextEntry={!showPassword}
               value={password}
               onChangeText={handlePasswordChange}
@@ -168,16 +169,39 @@ export default function LoginScreen() {
               <Ionicons
                 name={showPassword ? 'eye-off-outline' : 'eye-outline'}
                 size={20}
-                color="#999"
+                color={colors.secondaryText}
               />
             </TouchableOpacity>
           </View>
           {passwordError ? (
-            <Text style={{ color: '#C4401D', fontSize: 12, marginTop: 4, marginLeft: 4 }}>
+            <Text style={{ color: colors.primaryOrange, fontSize: 12, marginTop: 4, marginLeft: 4 }}>
               {passwordError}
             </Text>
           ) : null}
         </View>
+
+        {/* ── Remember Me ── */}
+        <TouchableOpacity
+          onPress={() => setRememberMe(!rememberMe)}
+          activeOpacity={0.7}
+        >
+          <View style={styles.rememberMeContainer}>
+            <View
+              style={[
+                styles.rememberMeCheckbox,
+                {
+                  borderColor: rememberMe ? colors.primaryOrange : colors.secondaryText,
+                  backgroundColor: rememberMe ? colors.primaryOrange : 'transparent',
+                },
+              ]}
+            >
+              {rememberMe && (
+                <Ionicons name="checkmark" size={14} color="#fff" />
+              )}
+            </View>
+            <Text style={styles.rememberMeText}>Remember me</Text>
+          </View>
+        </TouchableOpacity>
 
         <CustomButton
           title="Let's Start"

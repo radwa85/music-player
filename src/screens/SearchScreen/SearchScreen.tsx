@@ -9,7 +9,6 @@ import { SearchIcon, MusicSearchIcon } from '../../components/Icons';
 import { SearchSongCard } from '../../components/Search/SearchSongCard';
 import { MiniPlayer } from '../../components/Player/MiniPlayer';
 import { AppText } from '../../components/Common/AppText';
-import { colors } from '../../constants/colors';
 import { FilterModal, GenreOption } from '../../components/filter/FilterModal';
 import { makeSearchStyles } from './SearchScreen.styles';
 import { useTheme } from '../../providers/ThemeProvider';
@@ -99,17 +98,17 @@ export const SearchScreen: React.FC = () => {
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.header}>
         <View style={styles.searchInputContainer}>
-          <SearchIcon color={colors.unactiveTextIcon} width={20} height={20} />
+          <SearchIcon color={colors.primaryText} width={20} height={20} />
           <TextInput
             style={styles.searchInput}
             placeholder="Search"
-            placeholderTextColor={colors.unactiveTextIcon}
+            placeholderTextColor={colors.primaryText}
             value={query}
             onChangeText={(text) => dispatch(setQuery(text))}
             autoFocus
           />
           <TouchableOpacity onPress={() => setFilterModalVisible(true)} style={styles.filterIconButton}>
-            <Ionicons name="options-outline" size={24} color={colors.unactiveTextIcon} />
+            <Ionicons name="options-outline" size={24} color={colors.primaryText} />
           </TouchableOpacity>
         </View>
       </View>

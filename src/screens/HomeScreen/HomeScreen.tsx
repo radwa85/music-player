@@ -1,16 +1,21 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { useFonts } from "expo-font";
 import React, { useMemo, useState } from "react";
-import { Image, Pressable, ScrollView, Switch, TouchableOpacity, View } from "react-native";
+import {
+  Image,
+  Pressable,
+  ScrollView,
+  TouchableOpacity,
+  View
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AppText } from "../../components/Common/AppText";
 import { Header } from "../../components/Common/Header";
-import { RecommendedList } from "../../components/Home/RecommendedList";
 import { RecentlyPlayedSection } from "../../components/Home/RecentlyPlayedSection";
+import { RecommendedList } from "../../components/Home/RecommendedList";
+import PlaylistsSection from "../../components/Home/PlaylistsSection";
 import { ListIcon, SearchIcon } from "../../components/Icons";
 import { MiniPlayer } from "../../components/Player/MiniPlayer";
-import { colors as staticColors } from "../../constants/colors";
 import { useTheme } from "../../providers/ThemeProvider";
 import { makeStyles } from "./HomeScreen.styles";
 
@@ -37,13 +42,14 @@ export const HomeScreen: React.FC = () => {
           navigation.navigate("LikedSongs");
         },
       },
+      // 'Recommended Mix' moved to the Home view as a 'See all' link
       {
-        key: "playlists",
+        key: "playlistManagement",
         label: "Playlists",
-        icon: "musical-notes-outline" as const,
+        icon: "list-outline" as const,
         action: () => {
           setIsSidebarOpen(false);
-          navigation.navigate("Playlists");
+          navigation.navigate("PlaylistManagement");
         },
       },
       {
@@ -68,19 +74,8 @@ export const HomeScreen: React.FC = () => {
     [navigation],
   );
 
-  const [fontsLoaded] = useFonts({
-    "Gilroy-Regular": require("../../../assets/fonts/Gilroy-Regular.ttf"),
-    "Gilroy-Medium": require("../../../assets/fonts/Gilroy-Medium.ttf"),
-    "Gilroy-Bold": require("../../../assets/fonts/Gilroy-Bold.ttf"),
-  });
-
-  if (!fontsLoaded) {
-    return null;
-  }
-
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
-      {/* Background Decorations */}
       <View pointerEvents="none" style={styles.backgroundDecor}>
         <Image
           source={require("../../../assets/images/splash/ellipse1.png")}
@@ -109,6 +104,8 @@ export const HomeScreen: React.FC = () => {
       >
         <View style={styles.heroSection}>
           <RecommendedList />
+          {/* Playlists section added above Recently Played */}
+          <PlaylistsSection />
           <RecentlyPlayedSection />
         </View>
 
@@ -125,7 +122,6 @@ export const HomeScreen: React.FC = () => {
           />
 
           <View style={styles.sidebarPanel}>
-            {/* ── Sidebar header: close + Dark Mode toggle ── */}
             <View style={styles.sidebarHeaderRow}>
               <TouchableOpacity
                 onPress={() => setIsSidebarOpen(false)}
@@ -134,8 +130,10 @@ export const HomeScreen: React.FC = () => {
                 <Ionicons name="close" size={20} color={colors.primaryText} />
               </TouchableOpacity>
 
-              {/* Dark Mode Toggle */}
-              <TouchableOpacity style={styles.darkModeRow} onPress={toggleTheme}>
+              <TouchableOpacity
+                style={styles.darkModeRow}
+                onPress={toggleTheme}
+              >
                 <Ionicons
                   name={isDark ? "moon" : "moon-outline"}
                   size={24}
@@ -161,7 +159,11 @@ export const HomeScreen: React.FC = () => {
                     />
                   </View>
                   <View style={styles.sidebarItemLabel}>
-                    <AppText fontWeight="medium" style={styles.sidebarItemText} numberOfLines={1}>
+                    <AppText
+                      fontWeight="medium"
+                      style={styles.sidebarItemText}
+                      numberOfLines={1}
+                    >
                       {item.label}
                     </AppText>
                   </View>

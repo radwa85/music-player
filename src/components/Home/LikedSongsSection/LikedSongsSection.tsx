@@ -10,18 +10,20 @@ import {
 } from "react-native";
 import { useSelector } from "react-redux";
 
-import { colors } from "../../../constants/colors";
 import { useAudio } from "../../../providers/AudioProvider";
 import { likedApi } from "../../../services/LikedService";
 import { Track } from "../../../types/track";
 import { AppText } from "../../Common/AppText";
 import { RootState } from "../../../redux/store";
-import { styles } from "./LikedSongsSection.styles";
+import { useTheme } from "../../../providers/ThemeProvider";
+import { makeLikedSongsSectionStyles, CARD_SIZE } from "./LikedSongsSection.styles";
 
 export const LikedSongsSection: React.FC = () => {
   const navigation = useNavigation();
   const { currentTrack, isPlaying, playTrack } = useAudio();
   const { token } = useSelector((state: RootState) => state.auth);
+  const { colors } = useTheme();
+  const styles = makeLikedSongsSectionStyles(colors);
 
   const [likedTracks, setLikedTracks] = useState<Track[]>([]);
   const [loading, setLoading] = useState(true);
